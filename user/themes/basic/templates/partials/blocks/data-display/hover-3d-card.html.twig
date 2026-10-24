@@ -1,0 +1,8 @@
+<div class="hover-3d">
+    <figure class="max-w-100 rounded-2xl bg-base-100 p-6 shadow-xl">
+        {% if hover_card_image %}<img class="w-full rounded-xl" src="{{ hover_card_image|e('html_attr') }}" alt="{{ hover_card_alt|default('')|e('html_attr') }}" loading="lazy" />{% endif %}
+        <figcaption class="mt-4"><h2 class="text-xl font-bold">{{ hover_card_title|default('Card title')|e }}</h2><p>{{ hover_card_content|default('')|e }}</p></figcaption>
+    </figure>
+    <div></div><div></div><div></div><div></div>
+    <div></div><div></div><div></div><div></div>
+</div>

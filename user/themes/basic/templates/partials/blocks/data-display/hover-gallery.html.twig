@@ -1,0 +1,5 @@
+<figure class="hover-gallery mx-auto max-w-xl overflow-hidden rounded-box">
+    {% for item in gallery_items|default([]) %}
+        <img src="{{ item.image|default('')|e('html_attr') }}" alt="{{ item.alt|default('')|e('html_attr') }}" loading="lazy" />
+    {% endfor %}
+</figure>

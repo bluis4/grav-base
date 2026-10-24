@@ -1,0 +1,8 @@
+<nav class="dock {{ dock_demo_class|default('')|e('html_attr') }} {{ dock_class|default('')|e('html_attr') }}" aria-label="{{ dock_label|default('Quick navigation')|e('html_attr') }}">
+    {% for item in dock_items|default([]) %}
+        <a href="{{ item.url|default('#')|e('html_attr') }}"{% if item.active|default(false) %} class="dock-active" aria-current="page"{% endif %}>
+            {% if item.icon|default('') %}<span aria-hidden="true">{{ item.icon|raw }}</span>{% endif %}
+            <span class="dock-label">{{ item.label|default('Link')|e }}</span>
+        </a>
+    {% endfor %}
+</nav>

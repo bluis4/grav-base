@@ -1,0 +1,1 @@
+<div class="join {{ join_class|default('')|e('html_attr') }}">{% for item in join_items|default([]) %}<button class="join-item {{ item.class|default('btn')|e('html_attr') }}" type="{{ item.type|default('button')|e('html_attr') }}">{{ item.label|default('Action')|e }}</button>{% endfor %}</div>

@@ -1,0 +1,64 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block content %}
+    {% set posts = page.collection %}
+    {% set page_size = page.header.content.limit|default(10) %}
+    {% set current_page = grav.uri.currentPage|default(1) %}
+    {% set total_posts = page.children.count %}
+    {% set total_pages = (total_posts / page_size)|round(0, 'ceil') %}
+    {% set columns = page.header.columns|default(3) %}
+    {% set column_classes = 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' %}
+    {% if columns == 2 %}
+        {% set column_classes = 'grid-cols-1 md:grid-cols-2' %}
+    {% elseif columns == 4 %}
+        {% set column_classes = 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4' %}
+    {% endif %}
+
+    <section class="blog-page mx-auto max-w-6xl px-4 py-16 md:py-24" aria-labelledby="blog-title">
+        <header class="mb-12 max-w-3xl">
+            <p class="mb-4 inline-flex items-center gap-3 text-xs font-bold uppercase tracking-[0.24em] text-primary"><span class="h-px w-8 bg-secondary"></span>Notes from the studio</p>
+            <h1 id="blog-title" class="text-4xl font-bold leading-tight tracking-tight md:text-6xl">{{ page.title|e }}</h1>
+            {% if page.content %}<div class="prose mt-5 max-w-none">{{ page.content|raw }}</div>{% endif %}
+        </header>
+
+        <div class="grid {{ column_classes }} gap-6">
+            {% for post in posts %}
+                {% set cover = post.media[post.header.image|default('')] %}
+                <article class="card card-border h-full bg-base-100 shadow-sm">
+                    {% if cover %}
+                        <figure class="aspect-[16/10] overflow-hidden">
+                            {% include 'partials/modern_image.html.twig' with {
+                                image: cover,
+                                image_class: 'h-full w-full object-cover',
+                                image_alt: post.header.image_alt|default(post.title),
+                                image_loading: 'lazy'
+                            } only %}
+                        </figure>
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="flex items-center justify-between gap-3 text-sm text-base-content/70">
+                            {% if post.header.category %}<span class="badge badge-outline">{{ post.header.category|e }}</span>{% endif %}
+                            <time datetime="{{ post.date|date('c')|e('html_attr') }}">{{ post.date|date('M j, Y')|e }}</time>
+                        </div>
+                        <h2 class="card-title mt-2">{{ post.title|e }}</h2>
+                        <p>{{ post.header.summary|default(post.summary)|e }}</p>
+                        <div class="card-actions mt-auto pt-4">
+                            <a class="btn btn-outline btn-primary" href="{{ post.url|e('html_attr') }}">Read article<span class="sr-only">: {{ post.title|e }}</span></a>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+
+        {% if total_pages > 1 %}
+            <nav class="mt-12 flex justify-center" aria-label="Blog pagination">
+                <div class="join">
+                    {% for page_number in range(1, total_pages) %}
+                        {% set page_href = page_number == 1 ? page.url : page.url ~ '/page:' ~ page_number %}
+                        <a class="join-item btn{% if page_number == current_page %} btn-active{% endif %}" href="{{ page_href|e('html_attr') }}"{% if page_number == current_page %} aria-current="page"{% endif %}>{{ page_number }}</a>
+                    {% endfor %}
+                </div>
+            </nav>
+        {% endif %}
+    </section>
+{% endblock %}

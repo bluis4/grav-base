@@ -1,0 +1,11 @@
+{% set original_url = image.url %}
+{% set image_extension = original_url|split('?')|first|split('.')|last|lower %}
+{% set convert_modern = theme_var('convert_image_to_modern_format') and image_extension in ['jpg', 'jpeg', 'png'] %}
+{% if convert_modern %}
+    {% set avif_url = image.format('avif').url %}
+    {% set webp_url = image.format('webp').url %}
+{% endif %}
+{% if convert_modern %}<picture class="{{ picture_class|default(image_class|default(''))|e('html_attr') }}">
+    <source type="image/avif" srcset="{{ avif_url|e('html_attr') }}" />
+    <source type="image/webp" srcset="{{ webp_url|e('html_attr') }}" />
+{% endif %}<img class="{{ image_class|default('')|e('html_attr') }}" src="{{ original_url|e('html_attr') }}"{% if convert_modern %} data-modern-avif="{{ avif_url|e('html_attr') }}" data-modern-webp="{{ webp_url|e('html_attr') }}"{% endif %} alt="{{ image_alt|default('')|e('html_attr') }}"{% if image_loading|default('') %} loading="{{ image_loading|e('html_attr') }}"{% endif %} />{% if convert_modern %}</picture>{% endif %}

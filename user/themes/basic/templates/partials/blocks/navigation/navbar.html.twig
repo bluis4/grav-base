@@ -1,0 +1,4 @@
+<header class="navbar bg-base-100 shadow-sm">
+    <div class="navbar-start"><a class="btn btn-ghost text-xl" href="{{ navbar_brand_url|default('/')|e('html_attr') }}">{{ navbar_brand|default(site.title)|e }}</a></div>
+    <nav class="navbar-end" aria-label="{{ navbar_label|default('Main navigation')|e('html_attr') }}"><ul class="menu menu-horizontal px-1">{% for item in navbar_items|default([]) %}<li><a href="{{ item.url|default('#')|e('html_attr') }}"{% if item.active|default(false) %} aria-current="page"{% endif %}>{{ item.label|default('Link')|e }}</a></li>{% endfor %}</ul></nav>
+</header>

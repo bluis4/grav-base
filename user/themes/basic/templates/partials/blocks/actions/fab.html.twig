@@ -1,0 +1,8 @@
+<div class="fab {{ fab_demo_class|default('')|e('html_attr') }} {{ fab_flower|default(false) ? 'fab-flower' : '' }}">
+    <div tabindex="0" role="button" aria-label="{{ fab_label|default('Open actions')|e('html_attr') }}" class="btn btn-lg btn-circle btn-primary">{{ fab_icon|default('+')|e }}</div>
+    {% for action in fab_actions|default([]) %}
+        {% if action.url is defined %}<a class="btn btn-lg btn-circle" href="{{ action.url|e('html_attr') }}" aria-label="{{ action.label|default('Action')|e('html_attr') }}" title="{{ action.label|default('Action')|e('html_attr') }}">{% else %}<button class="btn btn-lg btn-circle" type="button" aria-label="{{ action.label|default('Action')|e('html_attr') }}" title="{{ action.label|default('Action')|e('html_attr') }}">{% endif %}
+            {{ action.icon|default(action.label|default('•'))|e }}
+        {% if action.url is defined %}</a>{% else %}</button>{% endif %}
+    {% endfor %}
+</div>

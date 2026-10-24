@@ -1,0 +1,26 @@
+{% set image_value = module.header.image|default('') %}
+{% set site_media = media_directory('user://media') %}
+{% set site_image_name = image_value starts with 'media://' ? image_value|replace({'media://': ''}) : image_value %}
+{% set image = image_value starts with 'media://' ? (site_media ? site_media[site_image_name] : null) : module.media[image_value] %}
+{% set image_url = image ? image.url : (image_value starts with 'media://' ? url(image_value) : '') %}
+<div class="mx-auto grid max-w-6xl gap-10 px-4 py-20 md:grid-cols-2 md:items-center md:py-28">
+    <div class="space-y-4 text-lg leading-relaxed">
+        {% if module.header.eyebrow %}<p class="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">{{ module.header.eyebrow|e }}</p>{% endif %}
+        <h2 class="text-3xl font-bold leading-tight tracking-tight md:text-5xl">{{ module.header.heading|default(module.title)|e }}</h2>
+        {{ content|raw }}
+    </div>
+    {% if image or image_url %}
+        <figure class="overflow-hidden rounded-box">
+            {% if image %}
+                {% include 'partials/modern_image.html.twig' with {
+                    image: image,
+                    image_class: 'h-full max-h-[28rem] w-full rounded-box object-cover',
+                    image_alt: module.header.image_alt|default(''),
+                    image_loading: 'lazy'
+                } only %}
+            {% else %}
+                <img class="h-full max-h-[28rem] w-full rounded-box object-cover" src="{{ image_url|e('html_attr') }}" alt="{{ module.header.image_alt|default('')|e('html_attr') }}" loading="lazy" />
+            {% endif %}
+        </figure>
+    {% endif %}
+</div>

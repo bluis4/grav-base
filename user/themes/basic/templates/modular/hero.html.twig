@@ -1,0 +1,19 @@
+{% set background_name = page.header.background_image|default('') %}
+{% set site_media = media_directory('user://media') %}
+{% set background_site_name = background_name starts with 'media://' ? background_name|replace({'media://': ''}) : background_name %}
+{% set background_media = background_name starts with 'media://' ? (site_media ? site_media[background_site_name] : null) : page.media[background_name] %}
+{% set background_url = background_media ? background_media.url : (background_name starts with 'media://' ? url(background_name) : '') %}
+{% include 'partials/blocks/layout/hero.html.twig' with {
+    hero_columns: page.header.columns_content|default([]),
+    hero_column_count: page.header.columns|default(2),
+    hero_content_alignment: page.header.content_alignment|default('left'),
+    hero_vertical_alignment: page.header.vertical_alignment|default('center'),
+    hero_background_style: page.header.background_style|default('solid'),
+    hero_background_color: page.header.background_color|default('#ffffff'),
+    hero_background_image: background_media,
+    hero_background_image_url: background_url,
+    hero_page_media: page.media,
+    hero_site_media: site_media,
+    hero_background_overlay: page.header.background_overlay|default(35),
+    hero_class: 'home-hero home-hero--split relative min-h-[75vh]'
+} only %}

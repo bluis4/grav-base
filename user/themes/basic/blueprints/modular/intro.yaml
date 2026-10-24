@@ -1,0 +1,31 @@
+title: Intro
+'@extends': default
+
+form:
+  fields:
+    tabs:
+      fields:
+        intro:
+          type: tab
+          title: Intro
+          fields:
+            header.eyebrow:
+              type: text
+              label: Eyebrow
+
+            header.heading:
+              type: text
+              label: Heading
+
+            header.image:
+              type: media
+              label: Image
+              sources:
+                - page
+                - site
+              accept:
+                - image/*
+
+            header.image_alt:
+              type: text
+              label: Image alt text

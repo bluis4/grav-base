@@ -1,0 +1,78 @@
+{#
+   Spacing helpers for block components.
+
+   A value is a comma-separated "top,bottom,left,right" list. Each entry may be:
+     - a token from the safelisted Tailwind scale (0, 0.5, 1, 1.5, 2 ... 48)
+     - a full spacing class (mt-4, mb-6, pl-0, ...)
+     - a custom CSS value ([13px], 13px, 1.5rem, 50%)
+   Tokens and classes become utility classes; anything else becomes an inline
+   style, because Tailwind's scanner can never see values entered at runtime.
+#}
+{% set spacing_tokens = ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '5', '6', '7', '8', '9', '10', '11', '12', '14', '16', '20', '24', '32', '40', '48'] %}
+{% set spacing_prefixes = ['mt-', 'mb-', 'ml-', 'mr-', 'pt-', 'pb-', 'pl-', 'pr-'] %}
+
+{% macro parse_spacing(spacing_val, type, tokens, prefixes) %}
+    {% set vals = spacing_val|split(',') %}
+    {% set top = vals[0]|default('')|trim %}
+    {% set bottom = vals[1]|default('')|trim %}
+    {% set left = vals[2]|default('')|trim %}
+    {% set right = vals[3]|default('')|trim %}
+    {% set prefix = 'm' %}
+    {% if type == 'padding' %}{% set prefix = 'p' %}{% endif %}
+    {% set classes = [] %}
+    {% for side, val in {'top': top, 'bottom': bottom, 'left': left, 'right': right} %}
+        {% if val is not empty %}
+            {% if side == 'top' %}{% set side_prefix = prefix ~ 't-' %}
+            {% elseif side == 'bottom' %}{% set side_prefix = prefix ~ 'b-' %}
+            {% elseif side == 'left' %}{% set side_prefix = prefix ~ 'l-' %}
+            {% elseif side == 'right' %}{% set side_prefix = prefix ~ 'r-' %}
+            {% endif %}
+            {% if val in tokens %}
+                {% set classes = classes|merge([side_prefix ~ val]) %}
+            {% else %}
+                {% set is_spacing_class = false %}
+                {% for p in prefixes %}
+                    {% if val starts with p %}{% set is_spacing_class = true %}{% endif %}
+                {% endfor %}
+                {% if is_spacing_class %}
+                    {% set classes = classes|merge([val]) %}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+    {{ classes|join(' ') }}
+{% endmacro %}
+
+{% macro spacing_style(spacing_val, type, tokens) %}
+    {% set vals = spacing_val|split(',') %}
+    {% set top = vals[0]|default('')|trim %}
+    {% set bottom = vals[1]|default('')|trim %}
+    {% set left = vals[2]|default('')|trim %}
+    {% set right = vals[3]|default('')|trim %}
+    {% set prefix = 'margin' %}
+    {% if type == 'padding' %}{% set prefix = 'padding' %}{% endif %}
+    {% set decls = [] %}
+    {% for side, val in {'top': top, 'bottom': bottom, 'left': left, 'right': right} %}
+        {% if val is not empty and val not in tokens %}
+            {# Only non-safelisted values reach here (safelisted tokens became
+               classes in parse_spacing). Numbers use Tailwind's spacing scale
+               via calc; custom values (13px, 1.5rem, 50%) pass through. #}
+            {% set is_number = (val + 0) == val %}
+            {% set is_custom = false %}
+            {% if not is_number %}
+                {% set raw = val starts with '[' ? val|trim('[]') : val %}
+                {% set bare = raw|replace({'px': '', 'rem': '', 'em': '', '%': '', 'vh': '', 'vw': ''}) %}
+                {% if (bare + 0) == bare and bare != '' and raw != bare %}
+                    {% set is_custom = true %}
+                    {% set css_val = raw %}
+                {% endif %}
+            {% endif %}
+            {% if is_number %}
+                {% set decls = decls|merge([prefix ~ '-' ~ side ~ ': calc(var(--spacing, 0.25rem) * ' ~ val ~ ');']) %}
+            {% elseif is_custom %}
+                {% set decls = decls|merge([prefix ~ '-' ~ side ~ ': ' ~ css_val ~ ';']) %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+    {{ decls|join(' ') }}
+{% endmacro %}

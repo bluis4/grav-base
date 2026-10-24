@@ -1,0 +1,9 @@
+enabled: true
+dropdown:
+  enabled: true
+sticky_header: false
+back_to_top: true
+logo_text: ''
+header_style: transparent
+convert_image_to_modern_format: true
+enable_bootstrap_icons: true

@@ -1,0 +1,1 @@
+<label class="label cursor-pointer justify-start gap-3"><input class="toggle {{ toggle_class|default('toggle-primary')|e('html_attr') }}" type="checkbox" name="{{ toggle_name|default('enabled')|e('html_attr') }}" value="1"{% if toggle_checked|default(false) %} checked{% endif %}><span class="label-text">{{ toggle_label|default('Enable option')|e }}</span></label>

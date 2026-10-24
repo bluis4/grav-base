@@ -1,0 +1,132 @@
+{% set component = block.component|default('data-display/badge') %}
+{% set component_values = block[component]|default({}) %}
+{% if component_values is iterable %}{% set block = block|merge(component_values) %}{% endif %}
+{% set raw_image = block.image|default('') %}
+{% set image_name = raw_image starts with 'media://' ? raw_image|replace({'media://': ''}) : raw_image %}
+{% set block_image = null %}
+{% if raw_image %}
+    {% set block_image = raw_image starts with 'media://' ? (hero_site_media ? hero_site_media[image_name] : null) : hero_page_media[raw_image] %}
+{% endif %}
+{% set image_url = block_image ? block_image.url : (raw_image starts with 'media://' ? url(raw_image) : '') %}
+{% set component_items = [] %}
+{% for item in block.items|default([]) %}
+    {% set item_image_value = item.image|default('') %}
+    {% set item_image_name = item_image_value starts with 'media://' ? item_image_value|replace({'media://': ''}) : item_image_value %}
+    {% set item_image = item_image_value ? (item_image_value starts with 'media://' ? (hero_site_media ? hero_site_media[item_image_name] : null) : hero_page_media[item_image_value]) : null %}
+    {% set component_items = component_items|merge([{
+        label: item.label|default(item.title|default('Item')),
+        title: item.title|default(item.label|default('Item')),
+        content: item.text|default(''),
+        text: item.text|default(''),
+        value: item.value|default(''),
+        url: item.url|default('#'),
+        image: item_image ? item_image.url : (item_image_value starts with 'media://' ? url(item_image_value) : item_image_value),
+        alt: item.alt|default(''),
+        time: item.value|default(''),
+        active: loop.first
+    }]) %}
+{% endfor %}
+
+{# Every other component renders from its own partial under blocks/<category>/<name>. #}
+{% set items = component_items %}
+{% set link_source = block.button_link_source|default('custom') %}
+{% set link_type = link_source is iterable ? link_source.type|default('') : link_source %}
+{% set page_values = block.page|default({}) %}
+{% set custom_values = block.custom|default({}) %}
+{% set source_page = link_source is iterable ? link_source.page|default({}) : {} %}
+{% set source_custom = link_source is iterable ? link_source.custom|default({}) : {} %}
+{% set source_flat_page = link_source is iterable ? link_source.button_page|default('') : '' %}
+{% set source_flat_custom = link_source is iterable ? link_source.button_custom_url|default('') : '' %}
+{% set link_page = page_values.button_page|default(source_page.button_page|default(source_flat_page|default(block.button_page|default('')))) %}
+{% if link_page is iterable %}{% set link_page = link_page|first|default('') %}{% endif %}
+{% set link_url = custom_values.button_custom_url|default(source_custom.button_custom_url|default(source_flat_custom|default(block.button_custom_url|default(block.button_url|default(block.url|default('#')))))) %}
+{% if link_type == 'page' and link_page %}
+    {% set linked_page = grav['pages'].find(link_page) %}
+    {% set link_url = linked_page ? linked_page.url : link_page %}
+{% endif %}
+{% include 'partials/blocks/' ~ component ~ '.html.twig' with {
+    module: page,
+    site_media: hero_site_media|default(null),
+    block: block,
+    block_image: block_image,
+    image_url: image_url,
+    card: {
+        title: block.title|default('Card title'),
+        description: block.text|default(''),
+        image: raw_image,
+        alt: block.alt|default(''),
+        button_label: block.label|default(''),
+        button_url: block.url|default('')
+    },
+    button_label: block.button_text|default(block.label|default(block.title|default('Learn more'))),
+    button_url: link_url,
+    button_class: block.button_style|default(block.style|default('')),
+    button_color: block.button_color|default(''),
+    button_text_color: block.button_text_color|default(''),
+    button_icon: block.button_use_icon|default(false) and theme_var('enable_bootstrap_icons') ? block.button_icon|default('') : '',
+    button_icon_position: block.button_icon_position|default('left'),
+    button_size: block.button_size|default('btn-md'),
+    button_extra_classes: block.button_extra_classes|default(''),
+    button_url_behavior: block.button_url_behavior|default('same'),
+    dropdown_label: block.label|default('Open menu'), dropdown_items: items,
+    fab_label: block.label|default('Open actions'), fab_icon: block.value|default('+'), fab_flower: false, fab_actions: items,
+    modal_trigger: block.label|default('Open dialog'), modal_title: block.title|default('Dialog'), modal_content: block.text|default(''),
+    modal_id: 'hero-modal-' ~ loop_index|default(1), modal_close: 'Close',
+    badge_content: block.badge_content|default(block.text|default(block.label|default('Badge'))),
+    badge_size: block.badge_size|default('badge-md'), badge_style: block.badge_style|default('default'),
+    badge_color: block.badge_color|default(''),
+    badge_icon: block.badge_icon|default('') and theme_var('enable_bootstrap_icons') ? block.badge_icon|default('') : '',
+    badge_icon_position: block.badge_icon_position|default('left'),
+    countdown_value: block.value|default(42), countdown_label: block.label|default('Countdown'),
+    countdown_seconds: block.value|default(42),
+    alert_message: block.text|default(block.label|default('This is an alert message.')), alert_class: block.style|default('alert-info'),
+    alert_icon: '',
+    accordion_items: items, accordion_group: 'hero-accordion-' ~ loop_index|default(1),
+    avatar_image: image_url, avatar_alt: block.alt|default(''), avatar_fallback: block.label|default('B'),
+    card_image: image_url, card_alt: block.alt|default(''),
+    carousel_items: items, carousel_id: 'hero-carousel-' ~ loop_index|default(1), gallery_items: items,
+    chat_message: block.text|default(block.label|default('Hello there!')), chat_name: block.title|default(''), chat_time: block.value|default(''), chat_side: 'chat-start',
+    collapse_title: block.title|default(block.label|default('Show details')), collapse_content: block.text|default('More details go here.'),
+    diff_before: block.label|default('Before'), diff_after: block.value|default('After'),
+    hover_card_image: image_url, hover_card_alt: block.alt|default(''), hover_card_title: block.title|default('Card title'), hover_card_content: block.text|default(''),
+    keyboard_keys: items|map(item => item.label), list_items: items,
+    aura_content: block.text|default(block.label|default('')), aura_style: block.style|default(''),
+    stat_title: block.label|default(block.title|default('Stat')), stat_value: block.value|default('42'), stat_description: block.text|default(''),
+    status_label: block.label|default('Status'), status_style: block.style|default('status-success'),
+    table_columns: [], table_rows: [], rotating_lines: items|map(item => item.label), timeline_items: items,
+    calendar_label: block.label|default('Calendar'), calendar_month: block.title|default('Choose a date'), calendar_days: items,
+    checkbox_label: block.label|default('Accept the option'), checkbox_name: 'hero-option', checkbox_value: block.value|default('1'),
+    fieldset_legend: block.title|default(block.label|default('Details')), fieldset_description: block.text|default(''), fieldset_content: '',
+    file_input_label: block.label|default('Choose a file'), file_input_hint: block.text|default(''), file_input_accept: '', file_input_name: 'file', file_input_class: '',
+    filter_items: items, filter_name: 'filter', filter_action: '#', filter_reset_label: 'Reset',
+    input_label: block.label|default(block.title|default('Input')), input_placeholder: block.text|default(''), input_type: 'text', input_name: 'input', input_value: block.value|default(''), input_class: block.style|default('input-bordered'), input_required: false,
+    label_text: block.label|default('Label'), label_for: 'hero-input', label_hint: block.text|default(''), otp_label: block.label|default('One-time password'), otp_name: 'otp', otp_length: block.value|default(6),
+    radio_label: block.label|default('Option'), radio_name: 'hero-radio', radio_value: block.value|default('option'), radio_class: '', radio_checked: false,
+    checkbox_class: '', checkbox_checked: false,
+    range_label: block.label|default('Volume'), range_value: block.value|default(50), range_min: 0, range_max: 100, range_step: 0, range_class: '',
+    rating_label: block.label|default('Rating'), rating_name: 'hero-rating', rating_value: block.value|default(0), rating_max: 5,
+    select_label: block.label|default('Choose an option'), select_name: 'option', select_class: '', select_options: items,
+    textarea_label: block.label|default('Your message'), textarea_name: 'message', textarea_value: block.text|default(''), textarea_placeholder: '', textarea_class: '', textarea_required: false,
+    toggle_label: block.label|default('Enable option'), toggle_name: 'enabled', toggle_class: '', toggle_checked: false,
+    validator_label: block.label|default('Email address'), validator_name: 'email', validator_type: 'email', validator_placeholder: 'mail@example.com', validator_hint: block.text|default(''), validator_required: false,
+    progress_label: block.label|default('Progress'), progress_value: block.value|default(70), progress_max: 100, progress_class: block.style|default('progress-primary'), loading_label: block.label|default('Loading'), loading_style: block.style|default('loading-spinner'), loading_size: 'loading-md',
+    radial_progress_value: block.value|default(70), radial_progress_class: block.style|default('text-primary'), radial_progress_size: '5rem', radial_progress_thickness: '0.5rem', skeleton_class: block.style|default(''), skeleton_circle: false,
+    toast_message: block.text|default(block.label|default('Notification')), toast_class: block.style|default('alert-info'), toast_position: 'toast-top toast-end', toast_inline: true,
+    tooltip_text: block.text|default(block.label|default('More info')), tooltip_content: block.text|default(block.label|default('More info')), tooltip_position: block.style|default('tooltip-top'),
+    divider_label: block.label|default(''), divider_class: block.style|default(''), drawer_content: block.text|default('Content'), drawer_button: block.label|default('Open menu'), drawer_id: 'hero-drawer-' ~ loop_index|default(1), drawer_class: '', drawer_sidebar: '',
+    hero_columns: [], indicator_content: block.text|default(block.label|default('New')), indicator_label: block.label|default('New'), indicator_badge_class: block.style|default('badge-primary'), join_items: items, join_class: block.style|default(''),
+    mask_image: image_url, mask_alt: block.alt|default(''), mask_shape: block.style|default('mask-squircle'), mask_class: '', stack_items: items, stack_class: block.style|default(''),
+    browser_url: block.url|default('https://example.com'), browser_content: block.text|default(block.title|default('Browser content')),
+    code_content: block.text|default('echo "Hello, world!"'), phone_content: block.text|default('Phone screen'), window_content: block.text|default('Window content'),
+    breadcrumb_items: items, dock_items: items, dock_label: block.label|default('Navigation'), dock_class: block.style|default(''), dock_demo_class: '', link_label: block.label|default(block.title|default('Learn more')),
+    link_url: block.url|default('#'), megamenu_items: items, menu_items: items, navbar_items: items,
+    menu_label: block.label|default('Menu'), menu_class: block.style|default(''),
+    navbar_label: block.label|default('Navigation'), navbar_brand: block.title|default('Brand'), navbar_brand_url: '#',
+    megamenu_label: block.label|default('Menu'), groups: items, links: items,
+    pagination_label: block.label|default('Pagination'), pagination_current: 1, pagination_pages: 3, pagination_url: '#', page_number: 1,
+    step_items: items, steps_class: block.style|default(''),
+    tab_items: items, tab_group: 'hero-tabs-' ~ loop_index|default(1), tabs_id: 'hero-tabs-' ~ loop_index|default(1), tabs_class: block.style|default('tabs-border'),
+    footer_brand: block.title|default('Brand'), footer_text: block.text|default(''), footer_class: block.style|default(''), footer_links: items, footer_links_label: block.label|default('Links'),
+    swap_label: block.label|default('Toggle'), swap_on: block.title|default('On'), swap_off: block.value|default('Off'), theme_controller_label: block.label|default('Toggle theme'),
+    code_prefix: '$'
+} only %}

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-labelledby="title">
+  <title id="title">A notebook with a pen and creative shapes</title>
+  <rect width="800" height="600" fill="#f7e9d7"/>
+  <circle cx="160" cy="140" r="70" fill="#efbd66" opacity=".75"/>
+  <circle cx="680" cy="465" r="105" fill="#c8dfd2"/>
+  <g transform="rotate(-8 400 320)">
+    <rect x="196" y="120" width="420" height="365" rx="28" fill="#fffdf8"/>
+    <rect x="196" y="120" width="52" height="365" rx="22" fill="#df8064"/>
+    <path d="M292 220h240M292 278h240M292 336h184M292 394h210" stroke="#aec9bd" stroke-linecap="round" stroke-width="18"/>
+    <path d="m575 150 40 26-144 224-40-26Z" fill="#397d73"/>
+    <path d="m431 374 40 26-51 30Z" fill="#e3a650"/>
+  </g>
+</svg>

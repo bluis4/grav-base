@@ -1,0 +1,7 @@
+{% set badge_style = badge_style|default('default') %}
+{% set badge_size = badge_size|default('badge-md') %}
+{% set badge_icon_side = badge_icon_position|default('left') %}
+{% set badge_classes = ('badge ' ~ (badge_style == 'default' ? '' : badge_style) ~ ' ' ~ badge_size)|trim %}
+{% set badge_styles = [] %}
+{% if badge_color|default('') %}{% set badge_styles = badge_styles|merge(['background-color: ' ~ badge_color, 'border-color: ' ~ badge_color]) %}{% endif %}
+<span class="{{ badge_classes|e('html_attr') }}"{% if badge_styles %} style="{{ badge_styles|join('; ')|e('html_attr') }}"{% endif %}>{% if badge_icon|default('') and badge_icon_side == 'left' %}<i class="bi {{ badge_icon|e('html_attr') }}" aria-hidden="true"></i>{% endif %}{{ badge_content|default(badge_label|default('Badge'))|e }}{% if badge_icon|default('') and badge_icon_side == 'right' %}<i class="bi {{ badge_icon|e('html_attr') }}" aria-hidden="true"></i>{% endif %}</span>

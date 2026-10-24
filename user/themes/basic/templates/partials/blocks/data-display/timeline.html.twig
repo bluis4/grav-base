@@ -1,0 +1,11 @@
+<ul class="timeline timeline-vertical">
+    {% for item in timeline_items|default([]) %}
+        <li>
+            {% if not loop.first %}<hr />{% endif %}
+            <div class="timeline-start">{{ item.time|default('')|e }}</div>
+            <div class="timeline-middle"><span class="status status-primary"></span></div>
+            <div class="timeline-end timeline-box"><h3 class="font-bold">{{ item.title|default('Timeline item')|e }}</h3><p>{{ item.content|default('')|e }}</p></div>
+            {% if not loop.last %}<hr />{% endif %}
+        </li>
+    {% endfor %}
+</ul>

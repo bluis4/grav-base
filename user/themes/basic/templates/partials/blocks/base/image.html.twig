@@ -1,0 +1,20 @@
+{#
+   Image component.
+
+   `image` arrives already resolved by the dispatcher (hero_component.html.twig)
+   as `block_image`; `image_url` covers a bare URL or a `media://` reference.
+#}
+{% if block_image|default(null) or image_url|default('') %}
+    <figure class="w-full">
+        {% if block_image|default(null) %}
+            {% include 'partials/modern_image.html.twig' with {
+                image: block_image,
+                image_class: 'mx-auto max-h-[34rem] w-full rounded-box object-contain',
+                image_alt: block.alt|default(''),
+                image_loading: 'eager'
+            } only %}
+        {% else %}
+            <img class="mx-auto max-h-[34rem] w-full rounded-box object-contain" src="{{ image_url|e('html_attr') }}" alt="{{ block.alt|default('')|e('html_attr') }}" loading="eager" />
+        {% endif %}
+    </figure>
+{% endif %}

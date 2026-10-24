@@ -1,0 +1,20 @@
+title: Blog Listing
+'@extends': default
+
+form:
+  fields:
+    tabs:
+      fields:
+        blog:
+          type: tab
+          title: Blog Layout
+          fields:
+            header.columns:
+              type: select
+              label: Columns on desktop
+              help: Sets how many article cards appear in each row on larger screens.
+              default: 3
+              options:
+                2: 2 columns
+                3: 3 columns
+                4: 4 columns

@@ -1,0 +1,26 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block content %}
+    {% set cover = page.media[page.header.image|default('')] %}
+    <article class="blog-post mx-auto max-w-4xl px-4 py-16 md:py-24">
+        <header class="mb-10">
+            <div class="mb-8 flex flex-col items-start gap-3">
+                <a class="btn btn-ghost btn-sm" href="{{ page.parent.url|e('html_attr') }}"><span aria-hidden="true">←</span> Back to Blog</a>
+                {% if page.header.category %}<p class="inline-flex items-center gap-3 text-xs font-bold uppercase tracking-[0.24em] text-primary"><span class="h-px w-8 bg-secondary"></span>{{ page.header.category|e }}</p>{% endif %}
+            </div>
+            <h1 class="text-4xl font-bold leading-tight tracking-tight md:text-6xl">{{ page.title|e }}</h1>
+            <time class="mt-4 block text-base-content/70" datetime="{{ page.date|date('c')|e('html_attr') }}">{{ page.date|date('F j, Y')|e }}</time>
+        </header>
+        {% if cover %}
+            <figure class="mb-10 overflow-hidden rounded-box">
+                {% include 'partials/modern_image.html.twig' with {
+                    image: cover,
+                    image_class: 'max-h-[32rem] w-full object-cover',
+                    image_alt: page.header.image_alt|default(page.title),
+                    image_loading: 'eager'
+                } only %}
+            </figure>
+        {% endif %}
+        <div class="prose max-w-none">{{ page.content|raw }}</div>
+    </article>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% set tab_group = tabs_id|default('tabs-demo') %}
+<div class="tabs {{ tabs_class|default('tabs-border')|e('html_attr') }}">
+    {% for item in tab_items|default([]) %}
+        <input type="radio" name="{{ tab_group|e('html_attr') }}" class="tab" aria-label="{{ item.label|default('Tab')|e('html_attr') }}"{% if item.active|default(loop.first) %} checked{% endif %} />
+        <div class="tab-content border-base-300 bg-base-100 p-5" role="tabpanel">{{ item.content|default('Tab content')|raw }}</div>
+    {% endfor %}
+</div>

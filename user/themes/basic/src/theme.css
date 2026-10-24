@@ -1,0 +1,213 @@
+@import "tailwindcss" source("..");
+
+@source "../templates";
+@source "../../../pages";
+
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+}
+
+/* Button sizes are selected in Grav Admin, so keep the full daisyUI size set. */
+@source inline("btn-xs btn-sm btn-md btn-lg btn-xl badge-xs badge-sm badge-md badge-lg badge-xl badge-outline badge-dash");
+
+/* Safelist: margin/padding scale for hero text-component spacing fields.
+   Values are entered in Admin as "top,bottom,left,right" (e.g. 0,10,0,0)
+   and converted to classes at render time, so the scanner never sees them.
+   0.25rem increments up to 12rem, matching the editor help text. */
+@utility mt-0 { margin-top: 0; }
+@utility mt-0\.5 { margin-top: 0.125rem; }
+@utility mt-1 { margin-top: 0.25rem; }
+@utility mt-1\.5 { margin-top: 0.375rem; }
+@utility mt-2 { margin-top: 0.5rem; }
+@utility mt-2\.5 { margin-top: 0.625rem; }
+@utility mt-3 { margin-top: 0.75rem; }
+@utility mt-3\.5 { margin-top: 0.875rem; }
+@utility mt-4 { margin-top: 1rem; }
+@utility mt-5 { margin-top: 1.25rem; }
+@utility mt-6 { margin-top: 1.5rem; }
+@utility mt-8 { margin-top: 2rem; }
+@utility mt-10 { margin-top: 2.5rem; }
+@utility mt-12 { margin-top: 3rem; }
+@utility mt-16 { margin-top: 4rem; }
+@utility mt-20 { margin-top: 5rem; }
+@utility mt-24 { margin-top: 6rem; }
+@utility mt-32 { margin-top: 8rem; }
+@utility mt-40 { margin-top: 10rem; }
+@utility mt-48 { margin-top: 12rem; }
+@utility mb-0 { margin-bottom: 0; }
+@utility mb-0\.5 { margin-bottom: 0.125rem; }
+@utility mb-1 { margin-bottom: 0.25rem; }
+@utility mb-1\.5 { margin-bottom: 0.375rem; }
+@utility mb-2 { margin-bottom: 0.5rem; }
+@utility mb-2\.5 { margin-bottom: 0.625rem; }
+@utility mb-3 { margin-bottom: 0.75rem; }
+@utility mb-3\.5 { margin-bottom: 0.875rem; }
+@utility mb-4 { margin-bottom: 1rem; }
+@utility mb-5 { margin-bottom: 1.25rem; }
+@utility mb-6 { margin-bottom: 1.5rem; }
+@utility mb-8 { margin-bottom: 2rem; }
+@utility mb-10 { margin-bottom: 2.5rem; }
+@utility mb-12 { margin-bottom: 3rem; }
+@utility mb-16 { margin-bottom: 4rem; }
+@utility mb-20 { margin-bottom: 5rem; }
+@utility mb-24 { margin-bottom: 6rem; }
+@utility mb-32 { margin-bottom: 8rem; }
+@utility mb-40 { margin-bottom: 10rem; }
+@utility mb-48 { margin-bottom: 12rem; }
+@utility ml-0 { margin-left: 0; }
+@utility ml-0\.5 { margin-left: 0.125rem; }
+@utility ml-1 { margin-left: 0.25rem; }
+@utility ml-1\.5 { margin-left: 0.375rem; }
+@utility ml-2 { margin-left: 0.5rem; }
+@utility ml-2\.5 { margin-left: 0.625rem; }
+@utility ml-3 { margin-left: 0.75rem; }
+@utility ml-3\.5 { margin-left: 0.875rem; }
+@utility ml-4 { margin-left: 1rem; }
+@utility ml-5 { margin-left: 1.25rem; }
+@utility ml-6 { margin-left: 1.5rem; }
+@utility ml-8 { margin-left: 2rem; }
+@utility ml-10 { margin-left: 2.5rem; }
+@utility ml-12 { margin-left: 3rem; }
+@utility ml-16 { margin-left: 4rem; }
+@utility ml-20 { margin-left: 5rem; }
+@utility ml-24 { margin-left: 6rem; }
+@utility ml-32 { margin-left: 8rem; }
+@utility ml-40 { margin-left: 10rem; }
+@utility ml-48 { margin-left: 12rem; }
+@utility mr-0 { margin-right: 0; }
+@utility mr-0\.5 { margin-right: 0.125rem; }
+@utility mr-1 { margin-right: 0.25rem; }
+@utility mr-1\.5 { margin-right: 0.375rem; }
+@utility mr-2 { margin-right: 0.5rem; }
+@utility mr-2\.5 { margin-right: 0.625rem; }
+@utility mr-3 { margin-right: 0.75rem; }
+@utility mr-3\.5 { margin-right: 0.875rem; }
+@utility mr-4 { margin-right: 1rem; }
+@utility mr-5 { margin-right: 1.25rem; }
+@utility mr-6 { margin-right: 1.5rem; }
+@utility mr-8 { margin-right: 2rem; }
+@utility mr-10 { margin-right: 2.5rem; }
+@utility mr-12 { margin-right: 3rem; }
+@utility mr-16 { margin-right: 4rem; }
+@utility mr-20 { margin-right: 5rem; }
+@utility mr-24 { margin-right: 6rem; }
+@utility mr-32 { margin-right: 8rem; }
+@utility mr-40 { margin-right: 10rem; }
+@utility mr-48 { margin-right: 12rem; }
+@utility pt-0 { padding-top: 0; }
+@utility pt-0\.5 { padding-top: 0.125rem; }
+@utility pt-1 { padding-top: 0.25rem; }
+@utility pt-1\.5 { padding-top: 0.375rem; }
+@utility pt-2 { padding-top: 0.5rem; }
+@utility pt-2\.5 { padding-top: 0.625rem; }
+@utility pt-3 { padding-top: 0.75rem; }
+@utility pt-3\.5 { padding-top: 0.875rem; }
+@utility pt-4 { padding-top: 1rem; }
+@utility pt-5 { padding-top: 1.25rem; }
+@utility pt-6 { padding-top: 1.5rem; }
+@utility pt-8 { padding-top: 2rem; }
+@utility pt-10 { padding-top: 2.5rem; }
+@utility pt-12 { padding-top: 3rem; }
+@utility pt-16 { padding-top: 4rem; }
+@utility pt-20 { padding-top: 5rem; }
+@utility pt-24 { padding-top: 6rem; }
+@utility pt-32 { padding-top: 8rem; }
+@utility pt-40 { padding-top: 10rem; }
+@utility pt-48 { padding-top: 12rem; }
+@utility pb-0 { padding-bottom: 0; }
+@utility pb-0\.5 { padding-bottom: 0.125rem; }
+@utility pb-1 { padding-bottom: 0.25rem; }
+@utility pb-1\.5 { padding-bottom: 0.375rem; }
+@utility pb-2 { padding-bottom: 0.5rem; }
+@utility pb-2\.5 { padding-bottom: 0.625rem; }
+@utility pb-3 { padding-bottom: 0.75rem; }
+@utility pb-3\.5 { padding-bottom: 0.875rem; }
+@utility pb-4 { padding-bottom: 1rem; }
+@utility pb-5 { padding-bottom: 1.25rem; }
+@utility pb-6 { padding-bottom: 1.5rem; }
+@utility pb-8 { padding-bottom: 2rem; }
+@utility pb-10 { padding-bottom: 2.5rem; }
+@utility pb-12 { padding-bottom: 3rem; }
+@utility pb-16 { padding-bottom: 4rem; }
+@utility pb-20 { padding-bottom: 5rem; }
+@utility pb-24 { padding-bottom: 6rem; }
+@utility pb-32 { padding-bottom: 8rem; }
+@utility pb-40 { padding-bottom: 10rem; }
+@utility pb-48 { padding-bottom: 12rem; }
+@utility pl-0 { padding-left: 0; }
+@utility pl-0\.5 { padding-left: 0.125rem; }
+@utility pl-1 { padding-left: 0.25rem; }
+@utility pl-1\.5 { padding-left: 0.375rem; }
+@utility pl-2 { padding-left: 0.5rem; }
+@utility pl-2\.5 { padding-left: 0.625rem; }
+@utility pl-3 { padding-left: 0.75rem; }
+@utility pl-3\.5 { padding-left: 0.875rem; }
+@utility pl-4 { padding-left: 1rem; }
+@utility pl-5 { padding-left: 1.25rem; }
+@utility pl-6 { padding-left: 1.5rem; }
+@utility pl-8 { padding-left: 2rem; }
+@utility pl-10 { padding-left: 2.5rem; }
+@utility pl-12 { padding-left: 3rem; }
+@utility pl-16 { padding-left: 4rem; }
+@utility pl-20 { padding-left: 5rem; }
+@utility pl-24 { padding-left: 6rem; }
+@utility pl-32 { padding-left: 8rem; }
+@utility pl-40 { padding-left: 10rem; }
+@utility pl-48 { padding-left: 12rem; }
+@utility pr-0 { padding-right: 0; }
+@utility pr-0\.5 { padding-right: 0.125rem; }
+@utility pr-1 { padding-right: 0.25rem; }
+@utility pr-1\.5 { padding-right: 0.375rem; }
+@utility pr-2 { padding-right: 0.5rem; }
+@utility pr-2\.5 { padding-right: 0.625rem; }
+@utility pr-3 { padding-right: 0.75rem; }
+@utility pr-3\.5 { padding-right: 0.875rem; }
+@utility pr-4 { padding-right: 1rem; }
+@utility pr-5 { padding-right: 1.25rem; }
+@utility pr-6 { padding-right: 1.5rem; }
+@utility pr-8 { padding-right: 2rem; }
+@utility pr-10 { padding-right: 2.5rem; }
+@utility pr-12 { padding-right: 3rem; }
+@utility pr-16 { padding-right: 4rem; }
+@utility pr-20 { padding-right: 5rem; }
+@utility pr-24 { padding-right: 6rem; }
+@utility pr-32 { padding-right: 8rem; }
+@utility pr-40 { padding-right: 10rem; }
+@utility pr-48 { padding-right: 12rem; }
+
+/* Half-step spacing tokens (0.5, 1.5, 2.5, 3.5) as PLAIN CSS.
+   @utility is on-demand (emitted only when the class appears in scanned
+   sources), and escaped-dot names never register as scanner candidates —
+   so runtime-generated classes like mb-2.5 need guaranteed plain rules. */
+.mt-0\.5 { margin-top: calc(var(--spacing) * 0.5); }
+.mt-1\.5 { margin-top: calc(var(--spacing) * 1.5); }
+.mt-2\.5 { margin-top: calc(var(--spacing) * 2.5); }
+.mt-3\.5 { margin-top: calc(var(--spacing) * 3.5); }
+.mb-0\.5 { margin-bottom: calc(var(--spacing) * 0.5); }
+.mb-1\.5 { margin-bottom: calc(var(--spacing) * 1.5); }
+.mb-2\.5 { margin-bottom: calc(var(--spacing) * 2.5); }
+.mb-3\.5 { margin-bottom: calc(var(--spacing) * 3.5); }
+.ml-0\.5 { margin-left: calc(var(--spacing) * 0.5); }
+.ml-1\.5 { margin-left: calc(var(--spacing) * 1.5); }
+.ml-2\.5 { margin-left: calc(var(--spacing) * 2.5); }
+.ml-3\.5 { margin-left: calc(var(--spacing) * 3.5); }
+.mr-0\.5 { margin-right: calc(var(--spacing) * 0.5); }
+.mr-1\.5 { margin-right: calc(var(--spacing) * 1.5); }
+.mr-2\.5 { margin-right: calc(var(--spacing) * 2.5); }
+.mr-3\.5 { margin-right: calc(var(--spacing) * 3.5); }
+.pt-0\.5 { padding-top: calc(var(--spacing) * 0.5); }
+.pt-1\.5 { padding-top: calc(var(--spacing) * 1.5); }
+.pt-2\.5 { padding-top: calc(var(--spacing) * 2.5); }
+.pt-3\.5 { padding-top: calc(var(--spacing) * 3.5); }
+.pb-0\.5 { padding-bottom: calc(var(--spacing) * 0.5); }
+.pb-1\.5 { padding-bottom: calc(var(--spacing) * 1.5); }
+.pb-2\.5 { padding-bottom: calc(var(--spacing) * 2.5); }
+.pb-3\.5 { padding-bottom: calc(var(--spacing) * 3.5); }
+.pl-0\.5 { padding-left: calc(var(--spacing) * 0.5); }
+.pl-1\.5 { padding-left: calc(var(--spacing) * 1.5); }
+.pl-2\.5 { padding-left: calc(var(--spacing) * 2.5); }
+.pl-3\.5 { padding-left: calc(var(--spacing) * 3.5); }
+.pr-0\.5 { padding-right: calc(var(--spacing) * 0.5); }
+.pr-1\.5 { padding-right: calc(var(--spacing) * 1.5); }
+.pr-2\.5 { padding-right: calc(var(--spacing) * 2.5); }
+.pr-3\.5 { padding-right: calc(var(--spacing) * 3.5); }

@@ -1,0 +1,9 @@
+<div id="{{ carousel_id|default('carousel-demo')|e('html_attr') }}" class="carousel carousel-center w-full gap-4 overflow-x-auto rounded-box">
+    {% for item in carousel_items|default([]) %}
+        <div class="carousel-item w-[85%] shrink-0 sm:w-[70%]">
+            {% if item.url %}<a href="{{ item.url|e('html_attr') }}">{% endif %}
+            <img class="aspect-video w-full rounded-box object-cover" src="{{ item.image|default('')|e('html_attr') }}" alt="{{ item.alt|default('')|e('html_attr') }}" loading="lazy" />
+            {% if item.url %}</a>{% endif %}
+        </div>
+    {% endfor %}
+</div>

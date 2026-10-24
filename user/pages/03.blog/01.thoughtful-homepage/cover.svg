@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Design abstract cover">
+  <defs><linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#D7F4E8"/><stop offset="1" stop-color="#196E65"/></linearGradient></defs>
+  <rect width="960" height="540" fill="url(#bg)"/>
+  <circle cx="735" cy="150" r="112" fill="#fff" opacity=".42"/>
+  <path d="M0 410 260 210l180 140 220-210 300 250v150H0Z" fill="#fff" opacity=".3"/>
+  <path d="M0 470 265 305l185 125 220-170 290 190v90H0Z" fill="#196E65" opacity=".7"/>
+  <rect x="56" y="54" width="112" height="10" rx="5" fill="#fff" opacity=".8"/>
+  <text x="58" y="492" fill="#fff" font-family="Arial, sans-serif" font-size="25" font-weight="700" letter-spacing="3">01 · DESIGN</text>
+</svg>

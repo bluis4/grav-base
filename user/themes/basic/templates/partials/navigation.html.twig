@@ -1,0 +1,47 @@
+{% macro loop(page) %}
+    {% for p in page.children.visible %}
+        {% set current_page = (p.active or p.activeChild) ? 'is-current' : '' %}
+        {% if p.children.visible.count > 0 %}
+            <li class="has-children">
+                <a class="main-nav__link {{ current_page|e('html_attr') }}" href="{{ p.url|e('html_attr') }}"{% if p.active %} aria-current="page"{% endif %}>
+                    {% if p.header.icon %}<i class="bi bi-{{ p.header.icon|e('html_attr') }}" aria-hidden="true"></i>{% endif %}
+                    {{ p.menu|e }}
+                </a>
+                <ul class="menu menu-vertical">
+                    {{ _self.loop(p) }}
+                </ul>
+            </li>
+        {% else %}
+            <li>
+                <a class="main-nav__link {{ current_page|e('html_attr') }}" href="{{ p.url|e('html_attr') }}"{% if p.active %} aria-current="page"{% endif %}>
+                    {% if p.header.icon %}<i class="bi bi-{{ p.header.icon|e('html_attr') }}" aria-hidden="true"></i>{% endif %}
+                    {{ p.menu|e }}
+                </a>
+            </li>
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
+
+<ul class="menu menu-horizontal menu-sm px-1">
+    {% if config.theme.dropdown.enabled %}
+        {{ _self.loop(pages) }}
+    {% else %}
+        {% for page in pages.children.visible %}
+            {% set current_page = (page.active or page.activeChild) ? 'is-current' : '' %}
+            <li>
+                <a class="main-nav__link {{ current_page|e('html_attr') }}" href="{{ page.url|e('html_attr') }}"{% if page.active %} aria-current="page"{% endif %}>
+                    {% if page.header.icon %}<i class="bi bi-{{ page.header.icon|e('html_attr') }}" aria-hidden="true"></i>{% endif %}
+                    {{ page.menu|e }}
+                </a>
+            </li>
+        {% endfor %}
+    {% endif %}
+    {% for mitem in site.menu %}
+        <li>
+            <a class="main-nav__link" href="{{ mitem.url|e('html_attr') }}">
+                {% if mitem.icon %}<i class="bi bi-{{ mitem.icon|e('html_attr') }}" aria-hidden="true"></i>{% endif %}
+                {{ mitem.text|e }}
+            </a>
+        </li>
+    {% endfor %}
+</ul>

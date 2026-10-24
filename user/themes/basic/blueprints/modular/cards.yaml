@@ -1,0 +1,61 @@
+title: Cards
+'@extends': default
+
+form:
+  fields:
+    tabs:
+      fields:
+        cards:
+          type: tab
+          title: Cards
+          fields:
+            header.eyebrow:
+              type: text
+              label: Eyebrow
+
+            header.heading:
+              type: text
+              label: Heading
+
+            header.description:
+              type: textarea
+              label: Description
+
+            header.columns:
+              type: select
+              label: Columns on desktop
+              help: Sets how many cards appear in each row on larger screens. Extra cards wrap into rows below.
+              default: 3
+              options:
+                2: 2 columns
+                3: 3 columns
+                4: 4 columns
+
+            header.cards:
+              name: cards
+              type: list
+              label: Cards
+              fields:
+                .title:
+                  type: text
+                  label: Title
+                .description:
+                  type: textarea
+                  label: Description
+                .image:
+                  type: media
+                  label: Image
+                  sources:
+                    - page
+                    - site
+                  accept:
+                    - image/*
+                .alt:
+                  type: text
+                  label: Image alt text
+                .button_label:
+                  type: text
+                  label: Button label
+                .button_url:
+                  type: text
+                  label: Button URL

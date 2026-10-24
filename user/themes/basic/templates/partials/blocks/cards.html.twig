@@ -1,0 +1,21 @@
+<div class="mx-auto max-w-6xl px-4 py-20 md:py-28">
+    {% set columns = module.header.columns|default(3) %}
+{% set site_media = media_directory('user://media') %}
+    {% set column_classes = 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' %}
+    {% if columns == 2 %}
+        {% set column_classes = 'grid-cols-1 md:grid-cols-2' %}
+    {% elseif columns == 4 %}
+        {% set column_classes = 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4' %}
+    {% endif %}
+
+    <div class="mb-8 max-w-2xl">
+        {% if module.header.eyebrow %}<p class="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">{{ module.header.eyebrow|e }}</p>{% endif %}
+        <h2 class="text-3xl font-bold leading-tight tracking-tight md:text-5xl">{{ module.header.heading|default(module.title)|e }}</h2>
+        {% if module.header.description %}<p class="mt-3 text-lg">{{ module.header.description|e }}</p>{% endif %}
+    </div>
+    <div class="grid {{ column_classes }} gap-6">
+        {% for card in module.header.cards %}
+            {% include 'partials/blocks/data-display/card.html.twig' with { module: module, card: card, site_media: site_media } only %}
+        {% endfor %}
+    </div>
+</div>

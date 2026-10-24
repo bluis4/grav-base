@@ -1,0 +1,4 @@
+<form class="filter" method="get" action="{{ filter_action|default('')|e('html_attr') }}">
+    {% for item in filter_items|default([]) %}<input class="btn btn-square" type="radio" name="{{ filter_name|default('filter')|e('html_attr') }}" aria-label="{{ item.label|default('Filter')|e('html_attr') }}" value="{{ item.value|default('')|e('html_attr') }}"{% if item.selected|default(false) %} checked{% endif %}>{% endfor %}
+    <button class="btn btn-square" type="reset" aria-label="{{ filter_reset_label|default('Reset filters')|e('html_attr') }}">×</button>
+</form>

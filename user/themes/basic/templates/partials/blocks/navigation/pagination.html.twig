@@ -1,0 +1,3 @@
+<nav aria-label="{{ pagination_label|default('Pagination')|e('html_attr') }}"><div class="join">
+    {% for page_number in pagination_pages|default([]) %}<a class="join-item btn{% if page_number == pagination_current|default(1) %} btn-active{% endif %}" href="{{ (pagination_url|default('?page=') ~ page_number)|e('html_attr') }}"{% if page_number == pagination_current|default(1) %} aria-current="page"{% endif %}>{{ page_number|e }}</a>{% endfor %}
+</div></nav>

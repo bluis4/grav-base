@@ -1,0 +1,4 @@
+<div class="space-y-4" aria-hidden="true">
+    <div class="skeleton {{ skeleton_circle|default(false) ? 'skeleton-circle size-12' : 'h-4 w-28' }}"></div>
+    {% if not skeleton_circle|default(false) %}<div class="skeleton h-4 w-full"></div><div class="skeleton h-4 w-3/4"></div>{% endif %}
+</div>

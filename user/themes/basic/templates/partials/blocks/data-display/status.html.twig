@@ -1,0 +1,2 @@
+{% set status_style = status_style|default('status-success') %}
+<span class="status {{ status_style|e('html_attr') }}" role="img" aria-label="{{ status_label|default('Status')|e('html_attr') }}"></span>

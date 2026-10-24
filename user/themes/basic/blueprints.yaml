@@ -1,0 +1,166 @@
+name: Basic
+slug: basic
+type: theme
+version: 0.1.0
+description: Base theme using tailwind css and daisy ui
+icon: rebel
+author:
+  name: bluefish
+  email: bluis21@gmail.com
+homepage: https://github.com/bluis4/grav-theme-basic
+# demo: http://demo.example.com
+keywords: grav, theme, etc
+bugs: https://github.com/bluis4/grav-theme-basic/issues
+readme: https://github.com/bluis4/grav-theme-basic/blob/develop/README.md
+license: MIT
+
+compatibility:
+  grav: ['2.0']
+
+dependencies:
+  - { name: grav, version: '>=2.0.0' }
+
+form:
+  validation: loose
+  fields:
+    dropdown.enabled:
+      type: toggle
+      label: Dropdown in Menu
+      help: Show child pages as dropdown links in the main navigation.
+      highlight: 1
+      default: 1
+      options:
+        1: PLUGIN_ADMIN.ENABLED
+        0: PLUGIN_ADMIN.DISABLED
+      validate:
+        type: bool
+
+    header_section:
+      type: section
+      title: Header
+      underline: true
+
+    sticky_header:
+      type: toggle
+      label: Sticky Header
+      help: Keep the header visible at the top of the screen while scrolling.
+      highlight: 1
+      default: 0
+      options:
+        1: PLUGIN_ADMIN.ENABLED
+        0: PLUGIN_ADMIN.DISABLED
+      validate:
+        type: bool
+
+    header_layout:
+      type: select
+      label: Header Layout
+      help: Choose whether the logo and navigation sit on one row or are centered in two rows.
+      default: inline
+      options:
+        inline: Inline (logo left, navigation right)
+        centered: Centered (logo above navigation)
+
+    header_style:
+      type: select
+      label: Header Style
+      help: Use the daisyUI primary color or a transparent background with a subtle divider.
+      default: transparent
+      options:
+        solid: Solid (primary color)
+        transparent: Transparent
+
+    logo_text:
+      type: text
+      label: Logo Text
+      help: Text shown as the site logo when no custom logo image is uploaded. Leave blank to use the site title.
+
+    custom_logo:
+      type: file
+      label: Custom Logo
+      help: Saved to user/themes/basic/assets/media/images/logo and used in place of the default icon and text.
+      size: large
+      destination: 'theme://assets/media/images/logo'
+      multiple: false
+      accept:
+        - image/*
+
+    custom_favicon:
+      type: file
+      label: Custom Favicon
+      help: PNG, SVG, or ICO image saved to user/themes/basic/assets/media/images/favicon.
+      size: large
+      destination: 'theme://assets/media/images/favicon'
+      multiple: false
+      accept:
+        - image/png
+        - image/svg+xml
+        - .ico
+
+    footer_section:
+      type: section
+      title: Footer
+      underline: true
+
+    back_to_top:
+      type: toggle
+      label: Back to Top Button
+      help: Show a circular back-to-top button after visitors scroll halfway down the page.
+      highlight: 1
+      default: 1
+      options:
+        1: PLUGIN_ADMIN.ENABLED
+        0: PLUGIN_ADMIN.DISABLED
+      validate:
+        type: bool
+
+    miscellaneous_section:
+      type: section
+      title: Miscellaneous
+      underline: true
+
+    primary_font:
+      type: select
+      label: Primary Font
+      help: Used for navigation, footer and copyright text, blog content, and card content.
+      default: open_sans
+      options:
+        open_sans: Open Sans
+        system: System UI
+        arial: Arial
+        georgia: Georgia
+
+    secondary_font:
+      type: select
+      label: Secondary Font
+      help: Used for headings and hero titles.
+      default: open_sans
+      options:
+        open_sans: Open Sans
+        system: System UI
+        arial: Arial
+        georgia: Georgia
+
+    convert_image_to_modern_format:
+      type: toggle
+      label: Convert image to modern format
+      help: Generate cached AVIF and WebP versions of page media images and use the best supported format, falling back to the original.
+      highlight: 1
+      default: 1
+      options:
+        1: PLUGIN_ADMIN.ENABLED
+        0: PLUGIN_ADMIN.DISABLED
+      validate:
+        type: bool
+
+    enable_bootstrap_icons:
+      type: toggle
+      label: Enable Bootstrap Icons
+      help: Load the theme's locally hosted Bootstrap Icons library.
+      highlight: 1
+      default: 1
+      options:
+        1: PLUGIN_ADMIN.ENABLED
+        0: PLUGIN_ADMIN.DISABLED
+      validate:
+        type: bool

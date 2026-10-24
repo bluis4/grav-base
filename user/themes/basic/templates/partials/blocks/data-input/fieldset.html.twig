@@ -1,0 +1,4 @@
+<fieldset class="fieldset rounded-box border border-base-300 p-4">
+    <legend class="fieldset-legend">{{ fieldset_legend|default('Your details')|e }}</legend>
+    {% if fieldset_description|default('') %}<p class="fieldset-label">{{ fieldset_description|e }}</p>{% endif %}{{ fieldset_content|default('')|raw }}
+</fieldset>

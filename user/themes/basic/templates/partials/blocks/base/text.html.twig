@@ -1,0 +1,128 @@
+{#
+   Text component.
+
+   A Text component is one editor-managed block. Its optional `name` is an
+   editor-only label; only its content is rendered. Presentation fields live
+   under the blueprint's Global Setting section.
+
+   Previously saved nested blocks are still rendered so existing page content
+   remains intact, but new blocks are added at the column level.
+
+   Legacy data from the old Short Text / Hero Title / Hero Content layout still
+   renders, so pages that have not been migrated keep their original output.
+#}
+{% set spacing_tokens = ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '5', '6', '7', '8', '9', '10', '11', '12', '14', '16', '20', '24', '32', '40', '48'] %}
+{% set spacing_prefixes = ['mt-', 'mb-', 'ml-', 'mr-', 'pt-', 'pb-', 'pl-', 'pr-'] %}
+{% import 'partials/blocks/base/spacing.html.twig' as spacing %}
+
+{# Admin Next nests values under the element's own key. #}
+{% set text_values = block['base/text']|default({}) %}
+{% if text_values is iterable %}{% set block = block|merge(text_values) %}{% endif %}
+
+{% set align_map = {left: 'text-left', center: 'text-center', right: 'text-right', justify: 'text-justify'} %}
+{% set tag_map = {p: 'p', h1: 'h1', h2: 'h2', h3: 'h3', h4: 'h4', h5: 'h5', h6: 'h6', span: 'span', div: 'div'} %}
+
+{# Collect the current block, then any previously saved nested blocks. #}
+{% set text_blocks = [] %}
+{% if block.content|default('') is not empty %}
+    {% set text_blocks = text_blocks|merge([block]) %}
+{% endif %}
+{% for item in block.blocks|default([]) %}
+    {% if item is iterable %}
+        {% set text_blocks = text_blocks|merge([item]) %}
+    {% endif %}
+{% endfor %}
+
+{% if text_blocks|length %}
+    <div class="space-y-3">
+        {% for text_block in text_blocks %}
+            {% set alignment = text_block.alignment|default('left') %}
+            {% set align_class = alignment == 'left' ? '' : align_map[alignment]|default('') %}
+            {% set font_class = text_block.font_size|default('text-base') %}
+            {% set margin_str = text_block.margin|default('') %}
+            {% set padding_str = text_block.padding|default('') %}
+            {% set spacing_classes = spacing.parse_spacing(margin_str, 'margin', spacing_tokens, spacing_prefixes) ~ ' ' ~ spacing.parse_spacing(padding_str, 'padding', spacing_tokens, spacing_prefixes) %}
+            {% set spacing_style = spacing.spacing_style(margin_str, 'margin', spacing_tokens) ~ spacing.spacing_style(padding_str, 'padding', spacing_tokens) %}
+            {% set color = text_block.color|default('') %}
+            {% set inline_color = color and color|first == '#' ? 'color: ' ~ color ~ ';' : '' %}
+            {% set style_attr = inline_color ~ spacing_style|trim %}
+
+            {% set tag = tag_map[text_block.tag|default('p')]|default('p') %}
+            {% if text_block.content|default('') %}
+                {% set is_heading = tag starts with 'h' %}
+                {% set weight = is_heading ? 'font-bold' : '' %}
+                {% set leading = is_heading ? '' : 'leading-relaxed' %}
+                <{{ tag }} class="{{ weight }} {{ font_class }} {{ leading }} {{ align_class }} {{ spacing_classes }} {{ text_block.style|default('')|e('html_attr') }}" style="{{ style_attr|e('html_attr') }}">{{ text_block.content|e|nl2br }}</{{ tag }}>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% else %}
+    {# --- Legacy layout: Short Text / Hero Title / Hero Content sections ---- #}
+    {% set esec = block.label is iterable ? block.label : {} %}
+    {% set tsec = block.title is iterable ? block.title : {} %}
+    {% set bsec = block.text  is iterable ? block.text  : {} %}
+
+    {% set eyebrow_text = esec.label_content|default(block.label_content|default(block.label is iterable ? '' : block.label|default(''))) %}
+    {% set eyebrow_style = esec.label_style|default(block.label_style|default('')) %}
+    {% set eyebrow_margin_str = esec.label_margin|default(block.label_margin|default('')) %}
+    {% set eyebrow_padding_str = esec.label_padding|default(block.label_padding|default('')) %}
+    {% set eyebrow_spacing = spacing.parse_spacing(eyebrow_margin_str, 'margin', spacing_tokens, spacing_prefixes) ~ ' ' ~ spacing.parse_spacing(eyebrow_padding_str, 'padding', spacing_tokens, spacing_prefixes) %}
+    {% set eyebrow_spacing_style = spacing.spacing_style(eyebrow_margin_str, 'margin', spacing_tokens) ~ spacing.spacing_style(eyebrow_padding_str, 'padding', spacing_tokens) %}
+    {% set eyebrow_font = esec.label_font_size|default(block.label_font_size|default('text-xs')) %}
+    {% set eyebrow_align_value = esec.label_alignment|default(block.label_alignment|default('left')) %}
+    {% set eyebrow_align = eyebrow_align_value != 'left' ? 'text-' ~ eyebrow_align_value : '' %}
+    {% set eyebrow_color = esec.label_color|default(block.label_color|default('')) %}
+    {% set eyebrow_inline_color = eyebrow_color and eyebrow_color|first == '#' ? 'color: ' ~ eyebrow_color ~ ';' : '' %}
+
+    {% set title_text = tsec.title_content|default(block.title_content|default(block.title is iterable ? '' : block.title|default(''))) %}
+    {% set title_url = tsec.title_url|default(block.title_url|default(block.url|default(''))) %}
+    {% set title_style = tsec.title_style|default(block.title_style|default('')) %}
+    {% set title_margin_str = tsec.title_margin|default(block.title_margin|default('')) %}
+    {% set title_padding_str = tsec.title_padding|default(block.title_padding|default('')) %}
+    {% set title_spacing = spacing.parse_spacing(title_margin_str, 'margin', spacing_tokens, spacing_prefixes) ~ ' ' ~ spacing.parse_spacing(title_padding_str, 'padding', spacing_tokens, spacing_prefixes) %}
+    {% set title_spacing_style = spacing.spacing_style(title_margin_str, 'margin', spacing_tokens) ~ spacing.spacing_style(title_padding_str, 'padding', spacing_tokens) %}
+    {% set title_font = tsec.title_font_size|default(block.title_font_size|default('text-2xl')) %}
+    {% set title_align_value = tsec.title_alignment|default(block.title_alignment|default('left')) %}
+    {% set title_align = title_align_value != 'left' ? 'text-' ~ title_align_value : '' %}
+    {% set title_color = tsec.title_color|default(block.title_color|default('')) %}
+    {% set title_inline_color = title_color and title_color|first == '#' ? 'color: ' ~ title_color ~ ';' : '' %}
+
+    {% set body_text = bsec.text_content|default(block.text_content|default(block.text is iterable ? '' : block.text|default(''))) %}
+    {% set body_style = bsec.text_style|default(block.text_style|default('')) %}
+    {% set body_margin_str = bsec.text_margin|default(block.text_margin|default('')) %}
+    {% set body_padding_str = bsec.text_padding|default(block.text_padding|default('')) %}
+    {% set body_spacing = spacing.parse_spacing(body_margin_str, 'margin', spacing_tokens, spacing_prefixes) ~ ' ' ~ spacing.parse_spacing(body_padding_str, 'padding', spacing_tokens, spacing_prefixes) %}
+    {% set body_spacing_style = spacing.spacing_style(body_margin_str, 'margin', spacing_tokens) ~ spacing.spacing_style(body_padding_str, 'padding', spacing_tokens) %}
+    {% set body_font = bsec.text_font_size|default(block.text_font_size|default('text-base')) %}
+    {% set body_align_value = bsec.text_alignment|default(block.text_alignment|default('left')) %}
+    {% set body_align = body_align_value != 'left' ? 'text-' ~ body_align_value : '' %}
+    {% set body_color = bsec.text_color|default(block.text_color|default('')) %}
+    {% set body_inline_color = body_color and body_color|first == '#' ? 'color: ' ~ body_color ~ ';' : '' %}
+
+    {% if eyebrow_text or title_text or body_text %}
+    <div class="space-y-3 {{ block.style|default('')|e('html_attr') }}">
+            {% if eyebrow_text %}
+            <p class="font-bold uppercase tracking-[0.2em] text-primary {{ eyebrow_font }} {{ eyebrow_spacing }} {{ eyebrow_align }} {{ eyebrow_style }}" style="{{ eyebrow_inline_color|e('html_attr') }}{{ eyebrow_spacing_style|trim|e('html_attr') }}">
+                {{ eyebrow_text|e }}
+            </p>
+        {% endif %}
+
+        {% if title_text %}
+            {% set title_classes = 'font-bold ' ~ title_font ~ ' ' ~ title_spacing ~ ' ' ~ title_align ~ ' ' ~ title_style %}
+            {% if title_url and title_url != '#' %}
+                <a href="{{ title_url|e('html_attr') }}" class="hover:underline">
+                    <h2 class="{{ title_classes|trim }}" style="{{ title_inline_color|e('html_attr') }}{{ title_spacing_style|trim|e('html_attr') }}">{{ title_text|e }}</h2>
+                </a>
+            {% else %}
+                <h2 class="{{ title_classes|trim }}" style="{{ title_inline_color|e('html_attr') }}{{ title_spacing_style|trim|e('html_attr') }}">{{ title_text|e }}</h2>
+            {% endif %}
+        {% endif %}
+
+        {% if body_text %}
+            <p class="leading-relaxed {{ body_font }} {{ body_spacing }} {{ body_align }} {{ body_style }}" style="{{ body_inline_color|e('html_attr') }}{{ body_spacing_style|trim|e('html_attr') }}">
+                {{ body_text|e|nl2br }}
+            </p>
+        {% endif %}
+    </div>
+    {% endif %}
+{% endif %}

@@ -1,0 +1,3 @@
+<ul class="steps {{ steps_class|default('steps-horizontal')|e('html_attr') }}">
+    {% for item in step_items|default([]) %}<li class="step{% if item.completed|default(false) %} step-primary{% endif %}"{% if item.completed|default(false) %} data-content="✓"{% endif %}>{{ item.label|default('Step')|e }}</li>{% endfor %}
+</ul>

@@ -1,0 +1,5 @@
+<div class="stat">
+    {% if stat_title %}<div class="stat-title">{{ stat_title|e }}</div>{% endif %}
+    <div class="stat-value">{{ stat_value|default('0')|e }}</div>
+    {% if stat_description %}<div class="stat-desc">{{ stat_description|e }}</div>{% endif %}
+</div>

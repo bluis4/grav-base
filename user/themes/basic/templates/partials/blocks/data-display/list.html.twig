@@ -1,0 +1,5 @@
+<ul class="list bg-base-100">
+    {% for item in list_items|default([]) %}
+        <li class="list-row"><div class="list-col-grow">{{ item|e }}</div></li>
+    {% endfor %}
+</ul>

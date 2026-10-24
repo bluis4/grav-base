@@ -1,0 +1,3 @@
+<div class="toast {{ toast_inline|default(false) ? 'toast-demo-inline' : '' }} {{ toast_position|default('toast-end toast-bottom')|e('html_attr') }}" role="status" aria-live="polite">
+    <div class="alert {{ toast_class|default('alert-info')|e('html_attr') }}"><span>{{ toast_message|default('Notification message')|e }}</span></div>
+</div>

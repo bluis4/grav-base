@@ -1,0 +1,5 @@
+<div class="chat {{ chat_side|default('chat-start') == 'chat-end' ? 'chat-end' : 'chat-start' }}">
+    {% if chat_name %}<div class="chat-header">{{ chat_name|e }}</div>{% endif %}
+    <div class="chat-bubble">{{ chat_message|default('')|e }}</div>
+    {% if chat_time %}<div class="chat-footer opacity-50">{{ chat_time|e }}</div>{% endif %}
+</div>

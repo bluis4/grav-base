@@ -1,0 +1,4 @@
+<footer class="footer {{ footer_class|default('footer-center bg-base-200 p-6 text-base-content')|e('html_attr') }}">
+    <div>{% if footer_brand|default('') %}<strong>{{ footer_brand|e }}</strong>{% endif %}{% if footer_text|default('') %}<p>{{ footer_text|e }}</p>{% endif %}</div>
+    {% if footer_links|default([]) %}<nav aria-label="{{ footer_links_label|default('Footer links')|e('html_attr') }}"><ul class="menu menu-horizontal">{% for item in footer_links %}<li><a href="{{ item.url|default('#')|e('html_attr') }}">{{ item.label|default('Link')|e }}</a></li>{% endfor %}</ul></nav>{% endif %}
+</footer>

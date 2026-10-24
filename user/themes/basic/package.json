@@ -1,0 +1,19 @@
+{
+  "name": "grav-theme-basic",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Build tooling for the Grav Basic theme's Tailwind CSS and daisyUI stylesheet.",
+  "scripts": {
+    "build:css": "npx @tailwindcss/cli -i ./src/theme.css -o ./assets/css/theme.css",
+    "watch:css": "npx @tailwindcss/cli -i ./src/theme.css -o ./assets/css/theme.css --watch",
+    "build": "npm run build:css"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "latest",
+    "daisyui": "latest",
+    "tailwindcss": "latest"
+  },
+  "dependencies": {
+    "bootstrap-icons": "^1.13.2"
+  }
+}

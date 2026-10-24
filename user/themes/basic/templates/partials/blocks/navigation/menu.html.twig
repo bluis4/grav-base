@@ -1,0 +1,5 @@
+<ul class="menu {{ menu_class|default('')|e('html_attr') }}" aria-label="{{ menu_label|default('Navigation menu')|e('html_attr') }}">
+    {% for item in menu_items|default([]) %}
+        <li>{% if item.children|default([]) %}<details><summary>{{ item.label|default('Menu item')|e }}</summary><ul>{% for child in item.children %}<li><a href="{{ child.url|default('#')|e('html_attr') }}">{{ child.label|default('Link')|e }}</a></li>{% endfor %}</ul></details>{% else %}<a href="{{ item.url|default('#')|e('html_attr') }}"{% if item.active|default(false) %} class="menu-active" aria-current="page"{% endif %}>{{ item.label|default('Menu item')|e }}</a>{% endif %}</li>
+    {% endfor %}
+</ul>

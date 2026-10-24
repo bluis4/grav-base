@@ -1,0 +1,8 @@
+<details class="dropdown">
+    <summary class="btn">{{ dropdown_label|default('Open menu')|e }}</summary>
+    <ul class="menu dropdown-content z-10 mt-2 w-52 rounded-box bg-base-100 p-2 shadow-sm">
+        {% for item in dropdown_items|default([]) %}
+            <li><a href="{{ item.url|default('#')|e('html_attr') }}">{{ item.label|default('Menu item')|e }}</a></li>
+        {% endfor %}
+    </ul>
+</details>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-labelledby="title">
+  <title id="title">Abstract sunrise over layered hills</title>
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#d8f3f0"/><stop offset="1" stop-color="#fff0d7"/></linearGradient>
+    <linearGradient id="hill" x1="0" x2="1"><stop stop-color="#167d78"/><stop offset="1" stop-color="#49b3a5"/></linearGradient>
+  </defs>
+  <rect width="900" height="620" rx="40" fill="url(#sky)"/>
+  <circle cx="640" cy="190" r="92" fill="#f5b94c"/>
+  <path d="M0 405 180 250l172 155 188-214 360 214v215H0Z" fill="#a4d7c8"/>
+  <path d="m0 456 208-143 192 143 185-123 315 123v164H0Z" fill="url(#hill)"/>
+  <path d="M0 520c163-61 297-40 435 17 147 60 298 26 465-28v111H0Z" fill="#125e5c" opacity=".78"/>
+  <path d="M93 145h153M130 108h92" stroke="#fff" stroke-linecap="round" stroke-width="14" opacity=".75"/>
+</svg>

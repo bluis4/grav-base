@@ -1,0 +1,3 @@
+<div role="alert" class="alert {{ alert_class|default('alert-info')|e('html_attr') }}">
+    {% if alert_icon|default('') %}<span aria-hidden="true">{{ alert_icon|raw }}</span>{% endif %}<span>{{ alert_message|default('This is an alert message.')|e }}</span>
+</div>

@@ -1,0 +1,8 @@
+<div class="join join-vertical w-full">
+    {% for item in accordion_items|default([]) %}
+        <details class="collapse collapse-arrow join-item border border-base-300" name="{{ accordion_group|default('accordion')|e('html_attr') }}">
+            <summary class="collapse-title font-semibold">{{ item.title|default('Accordion item')|e }}</summary>
+            <div class="collapse-content">{{ item.content|default('')|e }}</div>
+        </details>
+    {% endfor %}
+</div>

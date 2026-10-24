@@ -1,0 +1,24 @@
+timezone: null
+custom_base_url: null
+home:
+  alias: '/home'
+  hide_in_urls: true
+pages:
+  theme: basic
+  append_url_extension: null
+  redirect_default_code: '302'
+cache:
+  redis:
+    socket: ''
+errors:
+  display: 1
+debugger:
+  token: null
+images:
+  cls:
+    retina_scale: '1'
+gpm:
+  verify_peer: true
+updates:
+  safe_upgrade: true
+  safe_upgrade_snapshot_limit: 5

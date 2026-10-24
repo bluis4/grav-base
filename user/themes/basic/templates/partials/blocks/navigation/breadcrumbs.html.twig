@@ -1,0 +1,7 @@
+<div class="breadcrumbs text-sm" aria-label="Breadcrumb">
+    <ul>
+        {% for item in breadcrumb_items|default([]) %}
+            <li>{% if item.url|default('') %}<a href="{{ item.url|e('html_attr') }}">{{ item.label|default('Page')|e }}</a>{% else %}<span aria-current="page">{{ item.label|default('Page')|e }}</span>{% endif %}</li>
+        {% endfor %}
+    </ul>
+</div>

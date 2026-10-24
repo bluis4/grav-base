@@ -1,0 +1,45 @@
+# Composer dependencies (root and bundled plugin vendors)
+vendor/
+
+# Node
+node_modules/
+
+# Grav runtime
+backup/*
+!backup/.gitkeep
+cache/*
+!cache/.gitkeep
+assets/*
+!assets/.gitkeep
+logs/*
+!logs/.gitkeep
+images/*
+!images/.gitkeep
+tmp/*
+!tmp/.gitkeep
+
+# Secrets - never commit
+.env
+.env.local
+.env.*.local
+.gravenv
+*-private.php
+user/accounts/*
+!user/accounts/.gitkeep
+user/config/versions.yaml
+user/data/*
+!user/data/.gitkeep
+
+# Theme build artifacts
+user/themes/*/tmpbuild/
+
+# Tooling artifacts
+.zwork/
+.freebuff/
+.codex-remote-attachments/
+.idea/
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+*.swp

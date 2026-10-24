@@ -1,0 +1,14 @@
+{% set button_size_class = button_size|default('btn-md') %}
+{% set button_classes = ('btn ' ~ button_class|default('') ~ ' ' ~ button_size_class ~ ' ' ~ button_extra_classes|default(''))|trim %}
+{% set button_icon_side = button_icon_position|default('left') %}
+{% set button_behavior = button_url_behavior|default('same') %}
+{% set button_target = button_behavior == 'same' ? '_self' : '_blank' %}
+{% set button_popup_name = 'basic-button-' ~ random() %}
+{% set button_styles = [] %}
+{% if button_color|default('') %}{% set button_styles = button_styles|merge(['background-color: ' ~ button_color, 'border-color: ' ~ button_color]) %}{% endif %}
+{% if button_text_color|default('') %}{% set button_styles = button_styles|merge(['color: ' ~ button_text_color]) %}{% endif %}
+<a class="{{ button_classes|e('html_attr') }}" href="{{ button_url|default('#')|e('html_attr') }}" target="{{ button_target|e('html_attr') }}"{% if button_target == '_blank' %} rel="noopener noreferrer"{% endif %}{% if button_behavior == 'new_window' %} onclick="const popup = window.open(this.href, '{{ button_popup_name|e('js') }}', 'popup,width=900,height=700'); if (popup) { popup.opener = null; return false; }"{% endif %}{% if button_styles %} style="{{ button_styles|join('; ')|e('html_attr') }}"{% endif %}>
+    {% if button_icon|default('') and button_icon_side == 'left' %}<i class="bi {{ button_icon|e('html_attr') }}" aria-hidden="true"></i>{% endif %}
+    {{ button_label|default('Learn more')|raw }}
+    {% if button_icon|default('') and button_icon_side == 'right' %}<i class="bi {{ button_icon|e('html_attr') }}" aria-hidden="true"></i>{% endif %}
+</a>

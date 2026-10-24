@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+{% set font_choices = {
+    'open_sans': '"Open Sans", Arial, sans-serif',
+    'system': 'ui-sans-serif, system-ui, sans-serif',
+    'arial': 'Arial, Helvetica, sans-serif',
+    'georgia': 'Georgia, "Times New Roman", serif'
+} %}
+{% set primary_font = font_choices[theme_var('primary_font')|default('open_sans')]|default(font_choices.open_sans) %}
+{% set secondary_font = font_choices[theme_var('secondary_font')|default('open_sans')]|default(font_choices.open_sans) %}
+<html lang="{{ (grav.language.getActive ?: grav.config.site.default_lang)|e }}" data-theme="light" style="--font-primary: {{ primary_font|e('html_attr') }}; --font-secondary: {{ secondary_font|e('html_attr') }};">
+<head>
+{% block head %}
+    {% set favicon_upload = theme_var('custom_favicon') %}
+    {% set favicon_first = (favicon_upload is iterable and favicon_upload|length > 0) ? favicon_upload|first : null %}
+    {% set favicon_file = favicon_first.name|default(null) %}
+    {% set favicon_extension = favicon_file ? favicon_file|split('.')|last|lower : '' %}
+    {% set favicon_type = {'svg': 'image/svg+xml', 'ico': 'image/x-icon', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg'}[favicon_extension]|default('image/png') %}
+    <meta charset="utf-8" />
+    <title>{% if header.title %}{{ header.title|e }} | {% endif %}{{ site.title|e }}</title>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% include 'partials/metadata.html.twig' %}
+
+    <link rel="icon" type="{{ favicon_type|e('html_attr') }}" href="{{ (favicon_file ? url('theme://assets/media/images/favicon/' ~ favicon_file) : url('theme://assets/media/images/logo.png'))|e('html_attr') }}" />
+    <link rel="canonical" href="{{ page.canonical(true)|e }}" />
+{% endblock head %}
+
+{% block stylesheets %}
+    {% if theme_var('enable_bootstrap_icons') %}
+        {% do assets.addCss('theme://assets/css/bootstrap-icons.css?v=1.13.2', 99) %}
+    {% endif %}
+    {% do assets.addCss('theme://assets/css/theme.css?v=20261024-1', 98) %}
+    {% do assets.addCss('theme://assets/css/custom.css?v=20261022-12', 97) %}
+{% endblock %}
+
+{% block javascripts %}
+    {% do assets.addJs('theme://assets/js/theme.js?v=20261022-6', {group: 'bottom', priority: 99}) %}
+    {% if theme_var('convert_image_to_modern_format') %}
+        {% do assets.addJs('theme://assets/js/image-converter.js?v=20261022-1', {group: 'bottom', priority: 98}) %}
+    {% endif %}
+{% endblock %}
+
+{% block assets deferred %}
+    {{ assets.css()|raw }}
+    {{ assets.js()|raw }}
+{% endblock %}
+</head>
+<body id="top" class="{{ page.header.body_classes|e }} min-h-screen flex flex-col bg-base-100 text-base-content">
+
+{% block header %}
+    {% include 'partials/header.html.twig' %}
+{% endblock %}
+
+{% block body %}
+    <main id="body" class="w-full flex-1">
+        {% block content %}{% endblock %}
+    </main>
+{% endblock %}
+
+{% block footer %}
+    {% include 'partials/footer.html.twig' %}
+{% endblock %}
+
+{% if theme_var('back_to_top') %}
+    {% include 'partials/back_to_top.html.twig' %}
+{% endif %}
+
+{% block bottom %}
+    {{ assets.js('bottom')|raw }}
+{% endblock %}
+
+</body>
+</html>

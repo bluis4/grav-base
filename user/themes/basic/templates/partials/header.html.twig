@@ -1,0 +1,31 @@
+{% set logo_upload = theme_var('custom_logo') %}
+{% set logo_first = (logo_upload is iterable and logo_upload|length > 0) ? logo_upload|first : null %}
+{% set logo_file = logo_first.name|default(null) %}
+{% set logo_text = theme_var('logo_text')|default(config.site.title) %}
+{% set is_sticky = theme_var('sticky_header') %}
+{% set header_layout = theme_var('header_layout')|default('inline') %}
+{% set centered_header = header_layout == 'centered' %}
+{% set header_style = theme_var('header_style')|default('transparent') %}
+{% set is_home = 'home-page' in (page.header.body_classes|default('')|split(' ')) %}
+{% set transparent_header = header_style == 'transparent' %}
+{% set overlays_hero = transparent_header and is_home %}
+
+<header class="site-header navbar {{ transparent_header ? 'site-header--transparent' : 'bg-primary text-primary-content shadow-sm' }} {{ centered_header ? 'site-header--centered' : 'site-header--inline' }} {{ overlays_hero ? 'site-header--over-hero' : '' }} {{ is_sticky ? 'sticky top-0 z-50' : '' }}" data-shrink-on-scroll="{{ is_sticky ? 'true' : 'false' }}">
+    <div class="site-header__inner mx-auto flex w-full max-w-6xl items-center px-4 py-3 {{ centered_header ? 'flex-col justify-center gap-1' : 'flex-nowrap justify-between gap-4' }}">
+        <a class="site-header__brand shrink-0 text-xl font-bold" href="{{ home_url|e('html_attr') }}" aria-label="{{ logo_text|e('html_attr') }}">
+            {% if logo_file %}
+                <img class="site-header__logo h-10 w-auto" src="{{ url('theme://assets/media/images/logo/' ~ logo_file)|e('html_attr') }}" alt="{{ logo_text|e('html_attr') }}" />
+            {% else %}
+                {{ logo_text|e }}
+            {% endif %}
+        </a>
+        <button class="main-nav__toggle btn btn-ghost btn-square" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="primary-navigation">
+            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+                <path d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+        <nav id="primary-navigation" class="main-nav {{ centered_header ? 'mx-auto' : 'ml-auto' }}" aria-label="Primary navigation">
+            {% include 'partials/navigation.html.twig' %}
+        </nav>
+    </div>
+</header>

@@ -1,0 +1,55 @@
+{% set column_count = hero_column_count|default(2) + 0 %}
+{% set grid_classes = {
+    1: 'grid-cols-1',
+    2: 'grid-cols-1 md:grid-cols-2',
+    3: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+} %}
+{% set alignment_classes = {left: 'text-left', center: 'text-center', right: 'text-right'} %}
+{% set justify_classes = {left: 'justify-start', center: 'justify-center', right: 'justify-end'} %}
+{% set vertical_classes = {start: 'items-start', center: 'items-center', end: 'items-end'} %}
+{% set grid_class = grid_classes[column_count]|default(grid_classes[2]) %}
+{% set content_alignment = alignment_classes[hero_content_alignment|default('left')]|default(alignment_classes.left) %}
+{% set vertical_alignment = vertical_classes[hero_vertical_alignment|default('center')]|default(vertical_classes.center) %}
+{% set image_background = hero_background_style|default('solid') == 'image' and (hero_background_image|default(null) or hero_background_image_url|default('')) %}
+
+<div class="hero {{ hero_class|default('min-h-64')|e('html_attr') }} relative isolate overflow-hidden"{% if not image_background %} style="background-color: {{ hero_background_color|default('#ffffff')|e('html_attr') }}"{% endif %}>
+    {% if image_background and hero_background_image|default(null) %}
+        {% include 'partials/modern_image.html.twig' with {
+            image: hero_background_image,
+            picture_class: 'absolute inset-0 -z-20 h-full w-full',
+            image_class: 'h-full w-full object-cover',
+            image_alt: '',
+            image_loading: 'eager'
+        } only %}
+    {% elseif image_background %}
+        <div class="absolute inset-0 -z-20 bg-cover bg-center" style="background-image: url('{{ hero_background_image_url|e('html_attr') }}')"></div>
+    {% endif %}
+    {% if image_background %}
+        <div class="absolute inset-0 -z-10 bg-neutral" style="opacity: {{ (hero_background_overlay|default(35) / 100)|e('html_attr') }}"></div>
+    {% endif %}
+
+    <div class="hero-inner relative z-10 mx-auto grid w-full max-w-6xl {{ grid_class }} {{ vertical_alignment }} gap-10 px-4 py-16 md:py-24">
+        {% for column in hero_columns|default([]) %}
+            {% if loop.index <= column_count %}
+                {% set column_alignment = alignment_classes[column.alignment|default(hero_content_alignment|default('left'))]|default(content_alignment) %}
+                {% set stack_alignment = {left: 'items-start', center: 'items-center', right: 'items-end'} %}
+                <div class="hero-column {{ column_alignment }}{% if image_background %} text-white{% else %} text-base-content{% endif %}">
+                    {% if column.blocks|default([])|length %}
+                        <div class="flex w-full flex-col {{ stack_alignment[column.alignment|default(hero_content_alignment|default('left'))]|default('items-start') }} gap-5">
+                            {% for block in column.blocks %}
+                                <div class="hero-component w-full">
+                                    {% include 'partials/hero_component.html.twig' with {
+                                        block: block,
+                                        hero_site_media: hero_site_media|default(null),
+                                        hero_page_media: hero_page_media|default(null),
+                                        loop_index: loop.index
+                                    } only %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>

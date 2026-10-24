@@ -1,0 +1,5 @@
+<div class="drawer {{ drawer_class|default('')|e('html_attr') }}">
+    <input id="{{ drawer_id|default('block-drawer')|e('html_attr') }}" type="checkbox" class="drawer-toggle">
+    <div class="drawer-content">{{ drawer_content|default('')|raw }}<label for="{{ drawer_id|default('block-drawer')|e('html_attr') }}" class="btn btn-primary drawer-button">{{ drawer_button|default('Open menu')|e }}</label></div>
+    <div class="drawer-side"><label for="{{ drawer_id|default('block-drawer')|e('html_attr') }}" aria-label="Close menu" class="drawer-overlay"></label><aside class="min-h-full w-80 bg-base-200 p-4">{{ drawer_sidebar|default('')|raw }}</aside></div>
+</div>

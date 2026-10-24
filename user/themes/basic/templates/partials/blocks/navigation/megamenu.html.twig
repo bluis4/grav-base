@@ -1,0 +1,12 @@
+<nav class="megamenu" aria-label="{{ megamenu_label|default('Main navigation')|e('html_attr') }}">
+    {% for item in megamenu_items|default([]) %}
+        <details class="popover">
+            <summary class="btn btn-ghost">{{ item.label|default('Menu')|e }}</summary>
+            <div class="popover-content z-10 grid gap-4 rounded-box bg-base-100 p-4 shadow-lg md:grid-cols-2">
+                {% for group in item.groups|default([]) %}
+                    <section><h2 class="font-semibold">{{ group.title|default('Links')|e }}</h2><ul class="menu mt-2">{% for link in group.links|default([]) %}<li><a href="{{ link.url|default('#')|e('html_attr') }}">{{ link.label|default('Link')|e }}</a></li>{% endfor %}</ul></section>
+                {% endfor %}
+            </div>
+        </details>
+    {% endfor %}
+</nav>
