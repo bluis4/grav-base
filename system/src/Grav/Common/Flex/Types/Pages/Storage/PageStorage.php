@@ -16,6 +16,7 @@ use Grav\Common\Debugger;
 use Grav\Common\Flex\Types\Pages\PageIndex;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
+use Grav\Common\Page\PageIdentity;
 use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\Storage\FolderStorage;
@@ -372,6 +373,7 @@ class PageStorage extends FolderStorage
     {
         // Initialize all key-related variables.
         $newKeys = $this->extractKeysFromRow($row);
+        $this->assertValidPageKeys($newKeys);
         $newKey = $this->buildStorageKey($newKeys);
         $newFolder = $this->buildFolder($newKeys);
         $newFilename = $this->buildFilename($newKeys);
@@ -405,6 +407,10 @@ class PageStorage extends FolderStorage
                         }
 
                         $this->copyRow($oldKey, $newKey);
+                        // A copy never keeps the original's id.
+                        /** @var UniformResourceLocator $locator */
+                        $locator = $grav['locator'];
+                        PageIdentity::onCopied($locator->isStream($newFolder) ? $locator->findResource($newFolder) : $newFolder);
                         $debugger->addMessage("Page copied: {$oldFolder} => {$newFolder}", 'debug');
                     } else {
                         if (str_starts_with($newFolder, $oldFolder . '/')) {
@@ -477,6 +483,37 @@ class PageStorage extends FolderStorage
         $row['__META'] = $this->getObjectMeta($newKey, true);
 
         return $row;
+    }
+
+    /**
+     * The folder, template and language become parts of the page file's path,
+     * so each has to be a plain name: no separator, no null byte and no leading
+     * dot (which also rules out `.` and `..`). The parent key is the path of an
+     * existing page, so only its segments are checked.
+     *
+     * @param array $keys
+     * @return void
+     * @throws RuntimeException
+     */
+    protected function assertValidPageKeys(array $keys): void
+    {
+        $parentKey = (string)($keys['parent_key'] ?? '');
+        foreach ($parentKey !== '' ? explode('/', $parentKey) : [] as $segment) {
+            if ($segment === '' || $segment === '.' || $segment === '..' || str_contains($segment, "\0") || str_contains($segment, '\\')) {
+                throw new RuntimeException('Invalid page parent');
+            }
+        }
+
+        foreach (['folder', 'template'] as $name) {
+            $value = (string)($keys[$name] ?? '');
+            if ($value !== '' && ($value[0] === '.' || strpbrk($value, "/\\\0") !== false)) {
+                throw new RuntimeException("Invalid page {$name}");
+            }
+        }
+
+        if (!preg_match('/^[\w-]*$/u', (string)($keys['lang'] ?? ''))) {
+            throw new RuntimeException('Invalid page language');
+        }
     }
 
     /**
@@ -558,6 +595,9 @@ class PageStorage extends FolderStorage
             $modified = 0;
             $markdown = [];
             $children = [];
+            // With page ids on, the folder's id is read while the folder is listed.
+            $uuidIndex = PageIdentity::enabled();
+            $uuid = null;
 
             if (is_string($path) && is_dir($path)) {
                 $modified = filemtime($path);
@@ -565,6 +605,14 @@ class PageStorage extends FolderStorage
 
                 /** @var SplFileInfo $info */
                 foreach ($iterator as $k => $info) {
+                    // The page id file is never a page file or media.
+                    if ($k === PageIdentity::FILE) {
+                        if ($uuidIndex && $info->isFile()) {
+                            $uuid = PageIdentity::read($path);
+                        }
+                        continue;
+                    }
+
                     // Ignore all hidden files if set.
                     if ($k === '' || ($this->ignore_hidden && $k[0] === '.')) {
                         continue;
@@ -632,6 +680,9 @@ class PageStorage extends FolderStorage
             }
             if ($children) {
                 $meta['children'] = $children;
+            }
+            if ($uuidIndex) {
+                $meta['uuid'] = $uuid;
             }
             $meta['checksum'] = md5(json_encode($meta) ?: '');
 

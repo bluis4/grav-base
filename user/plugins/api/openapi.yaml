@@ -267,6 +267,7 @@ paths:
                         demo_mode:
                           enabled: false
                           writable: []
+                          grants: []
                           reset_interval: 30
                           seconds_until_reset: null
                 challenge:
@@ -1584,6 +1585,10 @@ paths:
         with children is refused with a 422.
 
         Requires `api.pages.write`, subject to the page's own `delete` rule.
+
+        When a plugin keeps deleted pages (for example in a trash) and
+        attaches a way to undo the delete through `onApiPageDeleted`, the
+        response is a 200 carrying that `undo` action instead of a 204.
       parameters:
         - $ref: "#/components/parameters/pageRoute"
         - $ref: "#/components/parameters/lang"
@@ -1597,6 +1602,24 @@ paths:
             type: boolean
             default: true
       responses:
+        "200":
+          description: Page deleted, and a plugin attached a way to undo the delete.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      undo:
+                        $ref: "#/components/schemas/PageDeleteUndo"
+              example:
+                data:
+                  undo:
+                    method: POST
+                    endpoint: /revisions-pro/trash/20261027-175708-b358ae091c/restore
+                    label: Undo
         "204":
           description: Page deleted successfully. No content returned.
         "401":
@@ -1676,8 +1699,10 @@ paths:
         at a new route. The destination parent must exist and the target
         route must not already be occupied (422 otherwise). If the source
         declares a `slug:` in its frontmatter, the copy's is rewritten to the
-        new folder name. If the copy cannot be resolved afterwards, only
-        `route` and `slug` are returned.
+        new folder name. A copy of a numbered page (`01.bar`) is numbered
+        after the last numbered page in the destination; a copy of an
+        unnumbered page stays unnumbered. If the copy cannot be resolved
+        afterwards, only `route` and `slug` are returned.
 
         Requires `api.pages.write`, subject to the source page's `read` rule
         and the destination parent's `create` rule.
@@ -1693,8 +1718,23 @@ paths:
               properties:
                 route:
                   type: string
-                  description: The full route for the copied page.
+                  description: |
+                    The full route for the copied page. The last segment may
+                    carry an order prefix (`/blog/03.my-post-copy`), which
+                    names the folder and is left out of the route.
                   example: /blog/my-post-copy
+                order:
+                  oneOf:
+                    - type: integer
+                      nullable: true
+                    - type: string
+                      enum: [auto]
+                  description: |
+                    Order prefix for the copy's folder. `auto` takes the next
+                    number after the destination's numbered pages (none when
+                    it has none) and null leaves the folder unnumbered.
+                    Omitted, a numbered source is numbered `auto` (starting
+                    at 1) and an unnumbered one is not.
             example:
               route: /blog/my-post-copy
       responses:
@@ -1914,6 +1954,17 @@ paths:
                         Appended to each page's slug to name the copy. Must be
                         a single path segment.
                       example: "-copy"
+                    order:
+                      oneOf:
+                        - type: integer
+                          nullable: true
+                        - type: string
+                          enum: [auto]
+                      description: |
+                        Order prefix for each copy, as on
+                        `POST /pages/{route}/copy`. Omitted, a numbered page's
+                        copy is numbered after the destination's last numbered
+                        page.
             example:
               operation: publish
               routes:
@@ -2442,6 +2493,101 @@ paths:
       responses:
         "204":
           description: Metadata cleared. No content returned.
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+
+  /pages/{route}/media/batch/meta:
+    post:
+      operationId: batchUpdatePageMediaMeta
+      tags: [Media]
+      summary: Apply metadata to several page media files
+      description: |
+        Write the same metadata fields to many media files on one page at once.
+        Only the configured fields present in `fields` change; each file keeps
+        its other values. The field values are checked once before anything is
+        written, so an invalid value (or a `required` field sent empty) fails
+        the whole request with a 422. Each filename is then handled on its own,
+        so a per-file problem such as a missing file is reported in `results`
+        without stopping the rest. Filenames must be flat names on the page
+        (no path separators). The number of files is capped by
+        `plugins.api.batch.max_items` (default 50).
+
+        Requires `api.media.write`; a page whose own rules deny `update`
+        returns 403.
+      parameters:
+        - $ref: "#/components/parameters/pageRoute"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [files, fields]
+              properties:
+                files:
+                  type: array
+                  minItems: 1
+                  description: Filenames of media files on this page (flat names, no path).
+                  items:
+                    type: string
+                fields:
+                  type: object
+                  additionalProperties:
+                    oneOf:
+                      - type: string
+                      - type: number
+                      - type: boolean
+                      - type: array
+                        items:
+                          type: string
+                  description: Metadata field key to value, validated the same way as a single-file write. An empty string (or empty array for a `tags` field) clears that field.
+            example:
+              files: [beach.jpg, dunes.jpg]
+              fields:
+                tags: [beach, summer]
+                title: Dunes at dawn
+      responses:
+        "200":
+          description: Per-file results.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            filename:
+                              type: string
+                            status:
+                              type: string
+                              enum: [success, error]
+                            message:
+                              type: string
+                              description: Present only when `status` is `error`.
+                          required: [filename, status]
+                      total:
+                        type: integer
+                      successful:
+                        type: integer
+                      failed:
+                        type: integer
+              example:
+                data:
+                  results:
+                    - { filename: beach.jpg, status: success }
+                    - { filename: missing.jpg, status: error, message: Media file 'missing.jpg' not found on this page. }
+                  total: 2
+                  successful: 1
+                  failed: 1
         "401": { $ref: "#/components/responses/Unauthorized" }
         "403": { $ref: "#/components/responses/Forbidden" }
         "404": { $ref: "#/components/responses/NotFound" }
@@ -3361,7 +3507,7 @@ paths:
       tags: [Media]
       summary: Apply metadata to several site media files
       description: |
-        Write the same metadata fields to many site media files at once. Only the configured fields present in `fields` change; each file keeps its other values. Every file is handled on its own, so one failure is reported in `results` without stopping the rest. The number of files is capped by `plugins.api.batch.max_items` (default 50). Requires `api.media.write`.
+        Write the same metadata fields to many site media files at once. Only the configured fields present in `fields` change; each file keeps its other values. The field values are checked once before anything is written, so an invalid value (or a `required` field sent empty) fails the whole request with a 422. Each file is then handled on its own, so a per-file problem such as a missing file is reported in `results` without stopping the rest. The number of files is capped by `plugins.api.batch.max_items` (default 50). Requires `api.media.write`.
       requestBody:
         required: true
         content:
@@ -3381,10 +3527,12 @@ paths:
                   additionalProperties:
                     oneOf:
                       - type: string
+                      - type: number
+                      - type: boolean
                       - type: array
                         items:
                           type: string
-                  description: Metadata field key to value. An empty string (or empty array for a `tags` field) clears that field.
+                  description: Metadata field key to value, validated the same way as a single-file write. An empty string (or empty array for a `tags` field) clears that field.
             example:
               files: [photos/beach.jpg, photos/dunes.jpg]
               fields:
@@ -4106,6 +4254,24 @@ paths:
         and so does a site without the Login plugin or with the setting off.
         Use `DELETE /users/{username}/email-change` to cancel a waiting change
         and `POST /users/{username}/email-change/resend` to mail the link again.
+
+        **Changing your own password** (API 1.1.0 or later) takes your current
+        password in `current_password` next to the new `password`, whatever
+        permissions you hold. Without it, or with a wrong one, the whole
+        request is refused with 422 and a field error on `current_password`.
+        Each try counts against the Login plugin's sign-in limits for the
+        account and the IP, so too many wrong ones return 429 with
+        `Retry-After`. An account with no password yet (`has_password: false`,
+        such as one created by a sign-in service) sets its first password
+        without one. An admin with `api.users.write` setting someone else's
+        password sends only `password`, as before.
+
+        Any password change signs the account out everywhere: every API token
+        issued before it stops working, and with the Login plugin 3.11.0 or
+        later so do its other browser sessions and remember-me cookies. When
+        you change your own password with a JWT, the response carries a fresh
+        token pair in `meta.tokens` so you stay signed in; a browser session
+        making the change stays signed in by itself.
       parameters:
         - $ref: "#/components/parameters/username"
         - $ref: "#/components/parameters/ifMatch"
@@ -4115,10 +4281,18 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/UpdateUserRequest"
-            example:
-              fullname: Jane Doe
-              email: jane@example.com
-              state: enabled
+            examples:
+              profile:
+                summary: Update profile fields
+                value:
+                  fullname: Jane Doe
+                  email: jane@example.com
+                  state: enabled
+              ownPassword:
+                summary: Change your own password
+                value:
+                  current_password: my-old-password
+                  password: A-new-passw0rd
       responses:
         "200":
           description: User updated successfully.
@@ -4132,6 +4306,30 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/User"
+                  meta:
+                    type: object
+                    description: Only present when there is something to add.
+                    properties:
+                      message:
+                        type: string
+                        description: Where the confirmation link for a new email address went.
+                      tokens:
+                        type: object
+                        description: |
+                          A fresh token pair, sent when you changed your own
+                          password with a JWT. The change ended the token the
+                          request came with, so replace it with these.
+                        properties:
+                          access_token:
+                            type: string
+                          refresh_token:
+                            type: string
+                          token_type:
+                            type: string
+                            example: Bearer
+                          expires_in:
+                            type: integer
+                            example: 3600
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -4274,8 +4472,27 @@ paths:
         it for another user requires `api.users.write`, and only a super admin
         may do it for a super admin. Returns 500 when the Login plugin's 2FA
         support is not installed.
+
+        **Replacing your own active 2FA** (API 1.1.0 or later): when your own
+        account has 2FA on, a new secret takes a valid current `code`, since it
+        switches 2FA off; without one, or with a wrong one, it is refused with
+        422 and a field error on `code`, and wrong codes count against the
+        Login plugin's 2FA limit (429). First-time setup needs no code, and
+        neither does an admin with `api.users.write` resetting someone else's
+        (lost-device recovery).
       parameters:
         - $ref: "#/components/parameters/username"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: Current authenticator code. Required when your own account has 2FA on.
+                  example: "123456"
       responses:
         "200":
           description: 2FA secret and QR code generated.
@@ -4305,6 +4522,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
         "429":
           $ref: "#/components/responses/TooManyRequests"
         "500":
@@ -4683,7 +4902,7 @@ paths:
       tags: [Users]
       summary: Turn off 2FA
       description: |
-        Turn off two-factor authentication and clear the secret. The account owner needs `api.access` and must send a valid current `code`. A caller with `api.users.write` (or a super admin), acting through a token or key whose scope includes `api.users.write`, can turn it off for another user without a code, for lost-device recovery; only super admins can do so for a super-admin account.
+        Turn off two-factor authentication and clear the secret. The account owner needs `api.access` and, while 2FA is on, must send a valid current `code`, whatever permissions they hold (API 1.1.0 or later; before that a caller with `api.users.write` could turn off their own without one). Without a code, or with a wrong one, it is refused with 422 and a field error on `code`, and wrong codes count against the Login plugin's 2FA limit (429). A caller with `api.users.write` (or a super admin), acting through a token or key whose scope includes `api.users.write`, can turn it off for another user without a code, for lost-device recovery; only super admins can do so for a super-admin account.
       parameters:
         - $ref: "#/components/parameters/username"
       requestBody:
@@ -4695,7 +4914,7 @@ paths:
               properties:
                 code:
                   type: string
-                  description: Current authenticator code. Required when disabling your own 2FA without `api.users.write`.
+                  description: Current authenticator code. Required when turning off your own 2FA while it is on.
                   example: "123456"
       responses:
         "200":
@@ -8843,6 +9062,9 @@ paths:
           description: |
             When `1`, `true` or `yes`, return modular templates (the ones used
             as sub-pages of a modular parent) instead of regular templates.
+            A modular template's `label` is the `title` of its own blueprint
+            (`blueprints/modular/<name>.yaml`), or its file name made readable
+            when it has none.
           schema:
             type: string
             default: "false"
@@ -9630,6 +9852,8 @@ paths:
         Every multipart file part is saved (nested file arrays are flattened). Each file is capped at 64 MB, and the field's own `filesize` can only tighten that. Extensions listed in `security.uploads_dangerous_extensions` are refused in any dot-separated part of the name (so `shell.php.jpg` fails), as are config-type extensions (`yaml`, `yml`, `json`, `twig`, `env`, `neon`, `lock`), page content (`md`, `markdown`) and stylesheets (`css`, `scss`, `sass`, `less`). Uploads into `user/accounts/` are restricted to image extensions, and uploads resolving into `user/config/` or `user/env/*/config/` are refused with 403. SVG files are sanitized after saving.
         A developer can allow page content or stylesheets for one field by listing them in that field's blueprint, for example `allow_extensions: [css]`. The server reads this from the blueprint that owns `scope` (a plugin or theme config blueprint, the page template's blueprint, or the account blueprint), never from the request: the request only names the field in `field`, and the upload's `destination` must be that field's own `destination`. `allow_extensions` can only lift `md`, `markdown`, `css`, `scss`, `sass` and `less`; dangerous and config-type extensions, the accounts image-only rule and the config directory block always apply.
         `self@:` against a `users/<username>` scope for another account needs `api.users.write` or super-admin.
+        Where the file lands also decides who may write it, judged on the logical path and on the realpath (themes and plugins are often symlinked in): anywhere in `user/themes/` or `user/plugins/` (a theme logo or favicon, a plugin asset) also needs `api.config.write`; a Twig template folder (a theme's or plugin's `templates/`, at any depth, or another registered template path) and anything outside `user/` (`cache://`, `log://`, `system://`, the root `assets/`) need super-admin. Refusals are 403, and an API key's scopes cap both permissions.
+        File names ending in a space or a dot, or containing control or invisible formatting characters, are refused with 422.
       requestBody:
         required: true
         content:
@@ -9698,7 +9922,7 @@ paths:
       summary: Delete a file saved by a blueprint file field
       description: |
         Remove a file previously saved through `POST /blueprint-upload`, plus its `.meta.yaml` sidecar when present. Requires `api.media.write`.
-        `path` is the logical path the upload returned, relative to the user root (`user/` prefix optional). Absolute input, `..` and null bytes are rejected. Targets in `user/config/` or `user/env/*/config/` are refused with 403. Under `user/accounts/` only image files may be deleted, and without `api.users.write` only the caller's own avatar (403 otherwise). The same extension denylist as the upload applies, so page content (`.md`) and stylesheets can't be deleted here unless `field` and `scope` name a blueprint field that allows them with `allow_extensions` and the file sits in the folder that field's `destination` resolves to.
+        `path` is the logical path the upload returned, relative to the user root (`user/` prefix optional). Absolute input, `..` and null bytes are rejected. Targets in `user/config/` or `user/env/*/config/` are refused with 403. The same folder rules as the upload apply: deleting in `user/themes/` or `user/plugins/` also needs `api.config.write`, and in a Twig template folder super-admin (403 otherwise). Under `user/accounts/` only image files may be deleted, and without `api.users.write` only the caller's own avatar (403 otherwise). The same extension denylist as the upload applies, so page content (`.md`) and stylesheets can't be deleted here unless `field` and `scope` name a blueprint field that allows them with `allow_extensions` and the file sits in the folder that field's `destination` resolves to.
         The call is idempotent: a file that no longer exists returns 204.
       requestBody:
         required: true
@@ -12488,6 +12712,8 @@ components:
                 additionalProperties:
                   oneOf:
                     - type: string
+                    - type: number
+                    - type: boolean
                     - type: array
                       items:
                         type: string
@@ -12497,9 +12723,13 @@ components:
                   for a `tags` field) clears a field. A `tags` field accepts an
                   array of strings, or a comma-separated string. A `select`
                   field accepts only one of its `options` keys (or an empty
-                  string); any other value is rejected with a 422. A bare
-                  `{key: value}` object (without the `fields` wrapper) is also
-                  accepted.
+                  string); any other value is rejected with a 422. A `number`
+                  field takes a number, bounded by the field's `min`/`max`; a
+                  `date` field takes a `YYYY-MM-DD` string; a `boolean` field
+                  takes a boolean, and `false` clears the key. A field marked
+                  `required` cannot be sent empty, though leaving it out of the
+                  map leaves the stored value alone. A bare `{key: value}` object
+                  (without the `fields` wrapper) is also accepted.
                 example:
                   alt: A dog running on the beach
                   title: Beach Day
@@ -12537,7 +12767,7 @@ components:
                 example: Alt Text
               type:
                 type: string
-                enum: [text, textarea, tags, select]
+                enum: [text, textarea, tags, select, number, date, boolean]
                 example: text
               options:
                 type: object
@@ -12550,13 +12780,35 @@ components:
                   generated: AI generated
                   altered: AI altered
                   none: No AI
+              min:
+                type: number
+                description: |
+                  Only present on a `number` field: the smallest accepted value.
+                example: 0
+              max:
+                type: number
+                description: |
+                  Only present on a `number` field: the largest accepted value.
+                example: 10
+              required:
+                type: boolean
+                description: |
+                  Only present (as `true`) on a field that a save cannot empty.
+                  Leaving the key out of a write still leaves the stored value
+                  alone.
+                example: true
               value:
                 description: |
-                  A string for `text`/`textarea`/`select` fields, or an array of
-                  strings for a `tags` field. A `select` value is one of its
-                  `options` keys, or an empty string.
+                  A string for `text`/`textarea`/`select` fields, a `YYYY-MM-DD`
+                  string for a `date` field, a number for a `number` field, a
+                  boolean for a `boolean` field, or an array of strings for a
+                  `tags` field. A `select` value is one of its `options` keys, or
+                  an empty string. A stored value that does not fit its field's
+                  type is returned as-is.
                 oneOf:
                   - type: string
+                  - type: number
+                  - type: boolean
                   - type: array
                     items:
                       type: string
@@ -12741,7 +12993,59 @@ components:
           type: string
           description: "Optional API path returning `{count: N}`, fetched by the admin to show a live badge that overrides `badge`."
           example: /my-plugin/badge
+        placement:
+          type: string
+          enum: [main, footer]
+          default: main
+          description: "`footer` shows the item in the sidebar's bottom group, above Settings, for site-wide tools such as a trash (Admin2 2.2.3 and later). Footer items aren't part of the arrangeable list."
+        children:
+          type: array
+          description: Shortcuts shown under this item, which a user can fold away or hide when they customize the sidebar. Children the user is not authorized for (their own `authorize`) are left out, and the key is absent when none remain.
+          items:
+            $ref: "#/components/schemas/SidebarChild"
       additionalProperties: true
+
+    PageDeleteUndo:
+      type: object
+      description: An action that undoes a page delete, attached by a plugin through `onApiPageDeleted`. The client sends it to this API to restore what was deleted.
+      required: [method, endpoint]
+      properties:
+        method:
+          type: string
+          example: POST
+        endpoint:
+          type: string
+          description: API path (relative to the API base, never a full URL).
+          example: /revisions-pro/trash/20261027-175708-b358ae091c/restore
+        body:
+          type: object
+          additionalProperties: true
+          description: Optional JSON body to send with the request.
+        label:
+          type: string
+          description: Optional button label.
+          example: Undo
+
+    SidebarChild:
+      type: object
+      required: [id, label, route]
+      properties:
+        id:
+          type: string
+          pattern: "^[A-Za-z0-9_-]{1,48}$"
+          description: Unique within its item. A sidebar layout names it `plugin:<item id>/<child id>`.
+          example: orders
+        label:
+          type: string
+          example: Orders
+        route:
+          type: string
+          description: Admin route, which may carry a `#` part for a plugin page's own screens.
+          example: "/plugin/kahunacart#/orders"
+        icon:
+          type: string
+          description: Optional Font Awesome icon name.
+          example: receipt
 
     # -- MCP Tool --------------------------------------------------------------
     McpTool:
@@ -13134,6 +13438,21 @@ components:
           items:
             type: string
           example: [en, fr]
+        uuid:
+          type: string
+          nullable: true
+          description: |
+            The page folder's permanent id (Grav 2.2.15 and later, when a
+            plugin or `system.pages.uuid` turns page ids on). It survives
+            renames and moves. Null when the folder has no id.
+          example: 7808eb41-bf20-44b5-a07e-f9c89fbb470d
+        delete_recoverable:
+          type: boolean
+          description: |
+            Whether a plugin keeps deleted pages so they can be restored (it
+            says so through `onApiPageDeleteInfo`), so a client can word its
+            delete confirmation accordingly.
+          example: false
         permissions:
           type: object
           description: |
@@ -13483,6 +13802,13 @@ components:
             is waiting; `email` keeps the old address until the link mailed to
             this one is opened. See `PATCH /users/{username}`.
           example: new-address@example.com
+        has_password:
+          type: boolean
+          description: |
+            Whether the account has a password of its own. An account created
+            by a sign-in service may not, and then changing your own password
+            needs no `current_password`. Only on single-user responses.
+          example: true
         fullname:
           type: string
           nullable: true
@@ -14181,9 +14507,10 @@ components:
         and `twofa_secret` are ignored here: two-factor state only changes through
         the `/users/{username}/2fa` endpoints, which check a code. `state` and
         `access` require `api.users.write` (403 when sent without it).
-        `groups` requires a super admin (403 otherwise). Changing the password
-        or disabling the account invalidates every outstanding API token for
-        that account.
+        `groups` requires a super admin (403 otherwise). Changing your own
+        `password` also needs `current_password` (see `PATCH
+        /users/{username}`). Changing the password or disabling the account
+        invalidates every outstanding API token for that account.
       properties:
         email:
           type: string
@@ -14213,7 +14540,18 @@ components:
         password:
           type: string
           format: password
-          description: New password. Only set if a non-empty value is provided.
+          description: |
+            New password. Only set if a non-empty value is provided. It must
+            meet the password policy from `GET /auth/password-policy`.
+        current_password:
+          type: string
+          format: password
+          writeOnly: true
+          description: |
+            Your current password, required with `password` when you change
+            your own and the account has one (422 when it is missing or
+            wrong, 429 after too many wrong ones). Ignored when an admin sets
+            someone else's password, and never stored.
         access:
           type: object
           additionalProperties: true
@@ -14991,7 +15329,12 @@ components:
               description: Whether this is a demo account whose writes are blocked.
             writable:
               type: array
-              description: Routes a demo account may still write to. Empty for normal accounts.
+              description: What a demo account may change, with each shorthand (api.pages.write, api.media.write, api.config.write) included whenever any of its finer grants is. Empty for normal accounts and read-only demos.
+              items:
+                type: string
+            grants:
+              type: array
+              description: The finer grants a demo account holds, with every shorthand spelled out (api.pages.create, api.pages.update, api.pages.delete, api.media.upload, api.media.update, api.media.delete, api.config.site, api.config.plugins, api.config.themes). Empty for normal accounts.
               items:
                 type: string
             reset_interval:
@@ -15726,6 +16069,43 @@ components:
           nullable: true
           enum: ["", create-new, edit, list]
           description: What Flex editors do after saving. Empty string follows the directory blueprint.
+        sidebarLayout:
+          $ref: "#/components/schemas/PreferencesSidebarLayout"
+        sidebarFolded:
+          type: array
+          nullable: true
+          maxItems: 200
+          items:
+            type: string
+          description: Plugin items (`plugin:<id>`) whose shortcuts are folded away under them in the sidebar. Ids must match `[A-Za-z0-9_.:/-]{1,128}`; others and duplicates are dropped.
+
+    PreferencesSidebarLayout:
+      type: object
+      nullable: true
+      description: |
+        Order and visibility of the Admin Next sidebar, by item id: core items by name (`dashboard`, `configuration`, `users`, `pages`, `media`, `plugins`, `themes`, `translations`, `tools`), plugin items as `plugin:<id>`, and `divider` for the line between groups. An empty `order` keeps the built-in order. Items missing from `order` keep their built-in place, and new plugin items go last. Hiding an item only removes it from the sidebar; permissions still decide what a user can open. `shortcuts` holds the children picked to show under a plugin item, keyed by `plugin:<id>`; an item missing from it shows the children its plugin marks `default`. Ids must match `[A-Za-z0-9_.:/-]{1,128}` (child ids `[A-Za-z0-9_-]{1,48}`); others and duplicates are dropped.
+      properties:
+        order:
+          type: array
+          maxItems: 200
+          items:
+            type: string
+          example: [dashboard, "plugin:kahunacart", pages, configuration]
+        hidden:
+          type: array
+          maxItems: 200
+          items:
+            type: string
+          example: [translations, "plugin:seo-magic"]
+        shortcuts:
+          type: object
+          additionalProperties:
+            type: array
+            maxItems: 200
+            items:
+              type: string
+          example:
+            "plugin:kahunacart": [orders, products, customers]
 
     PreferencesSiteSettings:
       type: object
@@ -15981,6 +16361,11 @@ components:
           pluginsViewMode: cards
           themesViewMode: cards
           flexAfterSave: ""
+          sidebarLayout:
+            order: []
+            hidden: []
+            shortcuts: {}
+          sidebarFolded: []
         site_settings:
           autoSaveEnabled: false
           autoSaveToolbarUndo: true

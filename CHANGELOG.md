@@ -1,3 +1,47 @@
+# v2.2.16
+## 10/29/2026
+
+1. [](#bugfix)
+    * [security] The `string()` Twig function now applies the same sandbox checks as the `|string` filter. Thanks @dagighost
+
+# v2.2.15
+## 10/29/2026
+
+1. [](#new)
+    * **Page ids**: a page folder can carry a hidden `.page-id` file holding a permanent id (a UUID) that stays with the folder however it is renamed, reordered or moved, in Admin, with git or over FTP. Read it with `$page->uuid()` and find a page by it with `$pages->findByUuid()`; `Grav\Common\Page\PageIdentity` writes ids, finds a folder by its id after a move, and decides which folder keeps an id that a copy made outside Grav duplicated (the older `.page-id` wins). Ids are off unless a plugin needs them: it calls `PageIdentity::enable()` in `onPluginsInitialized`, or a site sets `system.pages.uuid: true`, and then saving or creating a page gives its folder an id and a copied page gets its own. `bin/grav page-ids` gives every page folder an id and reports duplicates, and tells the pages cache so the next request finds the new ids. The file is hidden, so it never shows as a page file or as media, and a page folder moved to another disk (where Grav copies it instead of renaming it) takes its ids with it. Two requests saving one new page at the same moment give it one id, not two
+2. [](#bugfix)
+    * A scheduler custom job or backup profile added in the admin and saved without being filled in no longer breaks the scheduler: it is skipped, so the other jobs still run and the job list, health check and webhook keep working [getgrav/grav-plugin-scheduler-webhook#10](https://github.com/getgrav/grav-plugin-scheduler-webhook/issues/10)
+    * A new backup profile's default schedule runs once at 3:00 instead of every minute from 3:00 to 3:59, and a job whose Extra Arguments field is saved empty no longer fails
+    * The scheduler's custom job placeholders read as examples (`e.g. bin/grav`) instead of looking like values already filled in, and Run At saves the every-minute schedule it shows when left as is
+
+# v2.2.14
+## 10/26/2026
+
+1. [](#improved)
+    * Disabled plugins are no longer loaded, so a disabled plugin with code that doesn't work on this version of Grav can't take the site down, and requests do less work. A disabled plugin is still listed with its settings, and its class still loads if another plugin asks for it. Thanks @NoNoNo [#4374](https://github.com/getgrav/grav/issues/4374)
+2. [](#bugfix)
+    * CSS with a long quoted string or comment (such as an inlined data: URI) minifies again instead of failing with a PCRE error, and a very large data: URI no longer empties the whole stylesheet from the bundle. Thanks @NoNoNo [#4372](https://github.com/getgrav/grav/issues/4372)
+    * Inline JavaScript added with `loading: 'inline'` no longer renders a stray `inline` attribute on its script tag, and an inline JS module keeps its code when the pipeline is off. Thanks @NoNoNo [#4373](https://github.com/getgrav/grav/issues/4373)
+
+# v2.2.13
+## 10/23/2026
+
+1. [](#bugfix)
+    * [security] A field in a page's Flex form override keeps the stricter rules for dynamic options after it is merged into the directory blueprint, however it is renamed or numbered. Thanks @soquip
+    * [security] Page content is now checked for unsafe markup as though its Twig runs, even when Twig is off for that page, since a later move or rename can turn it into a module. Thanks @vLWa7ch
+    * [security] Flex user accounts: an account without super-admin access can no longer edit or delete a super-admin account through a Flex form, and a submitted password hash is ignored when an account is saved. Thanks @manus-pi
+    * [security] Flex page storage now refuses a folder, template or language that is not a plain name. Thanks @shm0x00
+    * [security] Images referenced by stream URI in page content, the watermark image and `media_directory()` now only come from media folders (pages, images, media, themes, plugins), configurable with the new `security.media.allowed_roots` setting. Thanks @123abab123789
+
+# v2.2.12
+## 10/22/2026
+
+1. [](#improved)
+    * The scheduler webhook now also runs jobs that missed their time since the last call, so a site pinged hourly (or late) no longer skips jobs set for another minute. Add `?mode=due` for the old behaviour. The scheduler health check now warns when a job is behind schedule, instead of five minutes after the last run [getgrav/grav-plugin-scheduler-webhook#9](https://github.com/getgrav/grav-plugin-scheduler-webhook/issues/9)
+2. [](#bugfix)
+    * Admin listings of a folder with thousands of pages no longer reload the folder once for every page in it, which made them slow and could run out of memory with caching on [getgrav/grav-plugin-admin2#200](https://github.com/getgrav/grav-plugin-admin2/issues/200)
+    * A scheduled backup no longer fails with "ZipArchive::close(): Unexpected length of data" when another job changes a file in the site while the backup is being written. The backup is built again (up to three tries), and if it still can't be written, it is marked as failed while the rest of the scheduler run carries on. A failing job used to stop the whole run, so the jobs after it never ran and none of their results were saved
+
 # v2.2.11
 ## 10/19/2026
 

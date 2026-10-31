@@ -558,7 +558,21 @@ class Job
         if (is_callable($this->command)) {
             $this->output = $this->exec();
         } else {
-            $args = is_string($this->args) ? explode(' ', $this->args) : $this->args;
+            // Process throws a ValueError for an empty program name, an Error that nothing in a
+            // scheduler run catches, so one job with no command stopped every job after it.
+            if (!is_string($this->command) || trim($this->command) === '') {
+                $this->output = 'This job has no command to run.';
+                $this->successful = false;
+                $this->removeLockFile();
+
+                return false;
+            }
+
+            // An Extra Arguments field saved empty (`args: ''`) or with a double space split into
+            // empty arguments, so `ls` ran as `ls ''` and failed with "No such file or directory".
+            $args = is_string($this->args)
+                ? array_values(array_filter(explode(' ', $this->args), static fn ($arg) => $arg !== ''))
+                : (array) $this->args;
             $command = array_merge($this->resolveCommand(), $args);
 
             // Command jobs need proc_open. Rather than letting Symfony's Process throw from
@@ -777,7 +791,6 @@ class Job
      * Execute a callable job.
      *
      * @return string
-     * @throws RuntimeException
      */
     private function exec()
     {
@@ -786,7 +799,9 @@ class Job
         try {
             $return_data = call_user_func_array($this->command, $this->args);
             $this->successful = true;
-        } catch (RuntimeException $e) {
+        } catch (\Throwable $e) {
+            // Any failure, not only a RuntimeException: one that escaped here used to end the
+            // whole scheduler run, so the jobs after it never ran and no job states were saved.
             $return_data = $e->getMessage();
             $this->successful = false;
         }

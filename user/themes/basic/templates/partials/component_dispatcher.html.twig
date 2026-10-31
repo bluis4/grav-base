@@ -57,7 +57,9 @@
 {% set fab_link_source = fab_link_settings.fab_link_source|default(block.fab_link_source|default('custom')) %}
 {% set fab_link_type = fab_link_source is iterable ? fab_link_source.type|default('') : fab_link_source %}
 {% set fab_page_values = fab_link_source is iterable ? fab_link_source.page|default({}) : {} %}
+{% set fab_page_values = fab_link_settings.page|default(block.page|default(fab_page_values)) %}
 {% set fab_custom_values = fab_link_source is iterable ? fab_link_source.custom|default({}) : {} %}
+{% set fab_custom_values = fab_link_settings.custom|default(block.custom|default(fab_custom_values)) %}
 {% set fab_link_page = fab_page_values.fab_page|default(fab_link_source.fab_page|default(block.fab_page|default(''))) %}
 {% if fab_link_page is iterable %}{% set fab_link_page = fab_link_page|first|default('') %}{% endif %}
 {% set fab_custom_url = fab_custom_values.fab_custom_url|default(fab_link_source.fab_custom_url|default(block.fab_custom_url|default(''))) %}

@@ -407,6 +407,233 @@ class Login
     }
 
     /**
+     * Whether the account has a password of its own. An account created by a
+     * sign-in service (OAuth2, LDAP and the like) may have none, and then
+     * there is no current password to ask for before setting one. Read from
+     * the stored account, like hasActiveTwoFactor().
+     *
+     * @param UserInterface $user
+     * @return bool
+     */
+    public function hasPassword(UserInterface $user): bool
+    {
+        $stored = $this->loadStoredAccount($user);
+        $hash = $stored->get('hashed_password');
+        $plain = $stored->get('password');
+
+        return (is_string($hash) && $hash !== '') || (is_string($plain) && $plain !== '');
+    }
+
+    /**
+     * Check the current password someone typed to change their own. Each try
+     * counts against the same limits as signing in (per account and per IP),
+     * so the form can't be used to guess the password, and a right password
+     * clears the count the way a successful sign-in does.
+     *
+     * Checked against the stored account rather than the session's copy.
+     *
+     * @param UserInterface $user
+     * @param string $password
+     * @return int 0 when the password is right, -1 when it is wrong, or the minutes
+     *             to wait when too many wrong passwords were tried.
+     */
+    public function verifyCurrentPassword(UserInterface $user, string $password): int
+    {
+        $username = (string)$user->get('username');
+
+        $wait = $this->checkLoginRateLimit($username);
+        if ($wait > 0) {
+            return $wait;
+        }
+
+        /** @var UserCollectionInterface $accounts */
+        $accounts = $this->grav['accounts'];
+        $stored = $accounts->load($username);
+        if (is_callable([$stored, 'refresh'])) {
+            $stored->refresh(true);
+        }
+
+        if ($password === '' || !$stored->exists() || !$stored->authenticate($password)) {
+            return -1;
+        }
+
+        $this->resetLoginRateLimit($username);
+
+        return 0;
+    }
+
+    /**
+     * Whether the stored account has 2-Factor Authentication switched on with a
+     * secret to check codes against. Read from the stored account, so a session
+     * copy from before 2FA was turned on elsewhere can't skip the code.
+     *
+     * @param UserInterface $user
+     * @return bool
+     */
+    public function hasActiveTwoFactor(UserInterface $user): bool
+    {
+        $stored = $this->loadStoredAccount($user);
+
+        return (bool)$stored->get('twofa_enabled') && (string)$stored->get('twofa_secret') !== '';
+    }
+
+    /**
+     * Check a current 2FA code someone typed to turn off or replace their
+     * second factor. Wrong codes count against the same limit as the sign-in
+     * challenge (twofa_attempts), and a right one clears it.
+     *
+     * @param UserInterface $user
+     * @param string|null $code
+     * @return int 0 when the code is right, -1 when it is wrong, or the minutes
+     *             to wait when too many wrong codes were tried.
+     */
+    public function verifyCurrentTwoFactorCode(UserInterface $user, ?string $code): int
+    {
+        $username = (string)$user->get('username');
+        $limiter = $this->getRateLimiter('twofa_attempts');
+        if ($limiter->hasReachedLimit($username)) {
+            return max(1, (int)ceil($limiter->getRetryAfter($username) / 60));
+        }
+
+        $secret = (string)$this->loadStoredAccount($user)->get('twofa_secret');
+        $code = trim((string)$code);
+        if ($code === '' || $secret === '' || !$this->twoFactorAuth()->verifyCode($secret, $code)) {
+            $limiter->registerRateLimitedAction($username);
+
+            return -1;
+        }
+
+        $limiter->resetRateLimit($username);
+
+        return 0;
+    }
+
+    /**
+     * Check the current 2FA code given to turn off or replace an active second
+     * factor, and say why it was refused (null when it is right).
+     *
+     * @param UserInterface $user
+     * @param mixed $code
+     * @return string|null
+     */
+    public function twoFactorCodeError(UserInterface $user, $code): ?string
+    {
+        /** @var Language $language */
+        $language = $this->grav['language'];
+
+        if (!is_string($code) || trim($code) === '') {
+            return $language->translate('PLUGIN_LOGIN.2FA_CODE_REQUIRED');
+        }
+
+        $result = $this->verifyCurrentTwoFactorCode($user, $code);
+        if ($result > 0) {
+            return $language->translate(['PLUGIN_LOGIN.2FA_CODE_TOO_MANY', $result]);
+        }
+        if ($result < 0) {
+            return $language->translate('PLUGIN_LOGIN.2FA_CODE_WRONG');
+        }
+
+        return null;
+    }
+
+    /**
+     * @param UserInterface $user
+     * @return UserInterface The account as stored, freshly read.
+     */
+    protected function loadStoredAccount(UserInterface $user): UserInterface
+    {
+        /** @var UserCollectionInterface $accounts */
+        $accounts = $this->grav['accounts'];
+        $stored = $accounts->load((string)$user->get('username'));
+        if ($stored !== $user && is_callable([$stored, 'refresh'])) {
+            $stored->refresh(true);
+        }
+
+        return $stored->exists() ? $stored : $user;
+    }
+
+    /**
+     * Sign an account out everywhere else after its password changed. Stamps
+     * `api_tokens_valid_after`, which API tokens and signed-in browsers are
+     * checked against (see isSessionOutdated()), and forgets the account's
+     * remember-me cookies. When the account changes its own password the
+     * browser making the change stays signed in: its session gets the same
+     * stamp, and a remember-me cookie it had is issued again. Pass
+     * `$keepCurrent = false` when someone else changed it.
+     *
+     * The caller saves the account.
+     *
+     * @param UserInterface $user
+     * @param bool $keepCurrent
+     * @return void
+     */
+    public function endOtherSessions(UserInterface $user, bool $keepCurrent = true): void
+    {
+        $now = time();
+        $username = (string)$user->get('username');
+        $user->set('api_tokens_valid_after', $now);
+
+        $sessionUser = null;
+        if ($keepCurrent) {
+            /** @var Session $session */
+            $session = $this->grav['session'];
+            $sessionUser = $session->isStarted() ? ($session->user ?? null) : null;
+        }
+        $ownSession = $sessionUser instanceof UserInterface
+            && $sessionUser->authenticated
+            && (string)$sessionUser->get('username') === $username;
+        if ($ownSession && $sessionUser !== $user) {
+            $sessionUser->set('api_tokens_valid_after', $now);
+        }
+
+        if ($username === '' || !$this->grav['config']->get('plugins.login.rememberme.enabled')) {
+            return;
+        }
+
+        $rememberMe = $this->rememberMe();
+        $cookie = $_COOKIE[(string)$this->grav['config']->get('plugins.login.rememberme.name')] ?? '';
+        $keepCookie = $ownSession
+            && is_string($cookie)
+            && explode('|', $cookie, 2)[0] === $username
+            && $rememberMe->cookieIsValid();
+
+        $rememberMe->getStorage()->cleanAllTriplets($username);
+        if ($keepCookie) {
+            $rememberMe->createCookie($username);
+        }
+    }
+
+    /**
+     * Whether a signed-in session began before the account's password last
+     * changed (or before it was otherwise signed out everywhere), so it has to
+     * sign in again. Compares the session copy's `api_tokens_valid_after` with
+     * the stored account's.
+     *
+     * @param UserInterface $sessionUser
+     * @return bool
+     */
+    public function isSessionOutdated(UserInterface $sessionUser): bool
+    {
+        if (!$sessionUser->exists() || !$sessionUser->authenticated) {
+            return false;
+        }
+
+        /** @var UserCollectionInterface $accounts */
+        $accounts = $this->grav['accounts'];
+        $stored = $accounts->load((string)$sessionUser->get('username'));
+        if ($stored === $sessionUser || !$stored->exists()) {
+            return false;
+        }
+        if (is_callable([$stored, 'refresh'])) {
+            $stored->refresh(true);
+        }
+
+        $cutoff = (int)$stored->get('api_tokens_valid_after', 0);
+
+        return $cutoff > 0 && (int)$sessionUser->get('api_tokens_valid_after', 0) < $cutoff;
+    }
+
+    /**
      * The rate limiter contexts an administrator can clear on someone's behalf.
      *
      * @return array<int, string>
@@ -777,9 +1004,14 @@ class Login
      * the link is opened. A second request replaces the first one, so an older
      * link stops working.
      *
-     * When the address already belongs to another account nothing is mailed,
-     * but the account still shows the change as waiting, so the profile form
-     * answers the same way it does for a free address.
+     * A request for a new address also tells the current address, with a link
+     * to cancel it (sendEmailChangeRequestedNotice()). Sending the link again
+     * for the same address keeps the cancel link already mailed, so it isn't
+     * mailed twice.
+     *
+     * When the address already belongs to another account nothing is mailed
+     * to it, but the account still shows the change as waiting, so the profile
+     * form answers the same way it does for a free address.
      *
      * @param UserInterface $user
      * @param string $email
@@ -788,17 +1020,22 @@ class Login
      */
     public function requestEmailChange(UserInterface $user, string $email)
     {
-        try {
-            $token = bin2hex(random_bytes(16));
-        } catch (\Exception $e) {
-            $token = md5(uniqid((string)mt_rand(), true));
-        }
-
         $expire = time() + static::EMAIL_CHANGE_TTL;
 
+        $newRequest = mb_strtolower((string)$user->get('email_pending', '')) !== mb_strtolower($email)
+            || (string)$user->get('email_change_cancel_token', '') === '';
+
         $user->email_pending = $email;
-        $user->email_change_token = $token . '::' . $expire;
+        $user->email_change_token = static::newToken() . '::' . $expire;
+        if ($newRequest) {
+            // Its own token, so the confirm link can't be worked out from it.
+            $user->email_change_cancel_token = static::newToken();
+        }
         $user->save();
+
+        if ($newRequest) {
+            $this->sendEmailChangeRequestedNotice($user);
+        }
 
         if ($this->emailBelongsToAnother($user, $email)) {
             $this->grav['log']->info(sprintf('plugin.login: email change for "%s" not mailed, the address belongs to another account', $user->username));
@@ -827,6 +1064,30 @@ class Login
      */
     public function refreshEmailFields(UserInterface $user): void
     {
+        $this->refreshStoredFields($user, ['email', 'email_pending', 'email_change_token', 'email_change_cancel_token', 'email_verified', 'email_verified_at']);
+    }
+
+    /**
+     * Copy the 2-Factor Authentication fields from the stored account onto the
+     * session's copy, for the same reason as refreshEmailFields(): 2FA turned
+     * on or off in the admin or another browser would otherwise show wrongly
+     * on the profile page and be written back by the next profile save.
+     *
+     * @param UserInterface $user
+     * @return void
+     */
+    public function refreshTwoFactorFields(UserInterface $user): void
+    {
+        $this->refreshStoredFields($user, ['twofa_enabled', 'twofa_secret']);
+    }
+
+    /**
+     * @param UserInterface $user
+     * @param array<int, string> $fields
+     * @return void
+     */
+    protected function refreshStoredFields(UserInterface $user, array $fields): void
+    {
         if (!$user->exists()) {
             return;
         }
@@ -841,7 +1102,7 @@ class Login
             $stored->refresh(true);
         }
 
-        foreach (['email', 'email_pending', 'email_change_token', 'email_verified', 'email_verified_at'] as $field) {
+        foreach ($fields as $field) {
             $value = $stored->get($field);
             if ($value === null) {
                 unset($user->{$field});
@@ -859,7 +1120,59 @@ class Login
      */
     public function clearEmailChange(UserInterface $user): void
     {
-        unset($user->email_pending, $user->email_change_token);
+        unset($user->email_pending, $user->email_change_token, $user->email_change_cancel_token);
+    }
+
+    /**
+     * Tell the current address that a change to a new one was asked for, with
+     * a link to cancel it. A delivery failure is logged, since the request
+     * itself has gone through.
+     *
+     * @param UserInterface $user
+     * @return bool True if the action was performed.
+     */
+    public function sendEmailChangeRequestedNotice(UserInterface $user)
+    {
+        if ((string)$user->get('email', '') === '') {
+            return false;
+        }
+
+        try {
+            Email::sendEmailChangeRequestedNotice($user);
+        } catch (\Exception $e) {
+            $this->grav['log']->error('plugin.login: could not send email change requested notice: ' . $e->getMessage());
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * A random token for an emailed link.
+     *
+     * @return string
+     */
+    public static function newToken(): string
+    {
+        try {
+            return bin2hex(random_bytes(16));
+        } catch (\Exception $e) {
+            return md5(uniqid((string)mt_rand(), true));
+        }
+    }
+
+    /**
+     * Whether a token from a link matches the one stored on the account. An
+     * empty token never matches, so a cleared one can't be used.
+     *
+     * @param string $stored
+     * @param string $given
+     * @return bool
+     */
+    public static function tokenMatches(string $stored, string $given): bool
+    {
+        return $stored !== '' && $given !== '' && hash_equals($stored, $given);
     }
 
     /**

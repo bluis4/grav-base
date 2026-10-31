@@ -389,6 +389,8 @@ A scope qualifies as custom when it is a flat slug (`^[a-z0-9][a-z0-9_-]*$` — 
 | `POST` | `/users/{username}/api-keys` | Generate an API key |
 | `DELETE` | `/users/{username}/api-keys/{keyId}` | Revoke an API key |
 
+**Changing your own password.** `PATCH /users/{username}` on your own account needs your current password next to the new one: `{"current_password": "…", "password": "…"}`. Without it, or with a wrong one, the request is refused with 422 and a field error on `current_password`, and each try counts against the Login plugin's sign-in limits (429 once they are used up). An account with no password yet (`has_password: false` on `GET /users/{username}`, such as one created by a sign-in service) sets its first password without one. An admin with `api.users.write` setting someone else's password sends only `password`, as before. Any password change ends every API token issued before it, and with the Login plugin 3.11.0 or later the account's other browser sessions too; when you change your own with a JWT, the response's `meta.tokens` holds a fresh token pair to carry on with.
+
 ### System
 
 | Method | Endpoint | Description |
@@ -700,6 +702,46 @@ The resolved blueprint includes all inherited fields from parent blueprints (e.g
 
 **Supported field types** in the serialized output include: `text`, `textarea`, `select`, `toggle`, `checkbox`, `radio`, `markdown`, `editor`, `filepicker`, `pagemedia`, `taxonomy`, `list`, `array`, `tabs`, `tab`, `section`, `fieldset`, `columns`, `column`, `spacer`, `display`, `hidden`, and more. Unknown field types are passed through with their properties intact for client-side fallback rendering.
 
+A modular template's `label` (with `?modular=true`) is the `title` of its own blueprint, `blueprints/modular/<name>.yaml`, translated when it is a language key. A type with no blueprint of its own, or one whose blueprint has no `title`, keeps its file name made readable (`featured_product` → "Featured product"); a title inherited through `extends@` doesn't count, so such types aren't all called "Default".
+
+**Icon sets for the `iconpicker` field.** On its own the field lists Font Awesome. A theme or plugin that draws its own icons can hand the field a set of them instead: the field names the set, and the set's owner registers it on `onApiIconSets`.
+
+```yaml
+header.hero.icon:
+  type: iconpicker
+  label: Icon
+  icons: encore       # the set to list instead of Font Awesome
+```
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return ['onApiIconSets' => ['onApiIconSets', 0]];
+}
+
+public function onApiIconSets(Event $event): void
+{
+    $sets = $event['sets'];
+    $sets['encore'] = [
+        'label' => 'Encore',
+        'icons' => [
+            'search' => '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+            'bag'    => '<svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7z"/></svg>',
+            'clock'  => 'fa:clock',
+        ],
+    ];
+    $event['sets'] = $sets;
+}
+```
+
+| Key | Meaning |
+|---|---|
+| `label` | The set's name in the picker. Optional; a language key is translated. |
+| `icons` | Icon name → icon, in the order the picker lists them. An icon is SVG markup (a whole `<svg>`, or only what goes inside one on a 24px grid) or any [IconSpec](https://github.com/getgrav/grav-admin-next/blob/main/docs/IconSpec.md) value. |
+| `file` | Instead of `icons`: a YAML file of `name: markup` lines, so a theme can keep one list for its templates and the admin. It must be a Grav stream URL (`theme://icons.yaml`; `theme://`, `plugin://`, `user://`, `plugins://` and `themes://` are accepted) naming a `.yaml` or `.yml` file that sits inside that stream's own folders. A plain or absolute path, a `..` segment, or a symlink that leads out of the folder is refused and the set is left out. |
+
+The picker saves the icon's name (`search`), which is what the theme's own icon macro takes. Markup never reaches the browser as markup: the API reads it into IconSpec's structured SVG form, keeping only `path`, `circle`, `rect`, `line`, `polyline`, `polygon` and `ellipse` and their geometry and stroke attributes, and drops scripts, styles, event handlers and anything else. Icons are drawn as line icons (no fill, stroked in the text color). The set is sent with each field that names it, as `icon_set`; a field naming a set nobody registered gets only `icons`, and the picker says the set isn't there.
+
 **Get a plugin blueprint:**
 
 ```bash
@@ -912,6 +954,69 @@ bin/plugin api keys:list --user=admin
 bin/plugin api keys:revoke --user=admin [key-id]
 ```
 
+Demo mode has `demo:baseline`, `demo:status` and `demo:reset`; see [Demo Mode](#demo-mode).
+
+## Demo Mode
+
+Demo mode lets you put a Grav site online for anyone to try: visitors sign in to the admin with a shared account, look at everything, and change only what you allow. The site then resets itself to a saved starting state on a timer.
+
+It is turned on per account. Give the account the **Demo Mode** permission (`access.api.demo: true`), usually alongside `api.super` so it can see every screen. Your own accounts are not affected.
+
+### What a demo account may change
+
+`demo.writable` in the API settings lists what demo accounts may change. Empty, the default, is a read-only demo.
+
+| Grant | Lets a demo account |
+|---|---|
+| `api.pages.create` | create, copy and translate pages |
+| `api.pages.update` | edit, move, reorder, publish and unpublish pages |
+| `api.pages.delete` | delete pages |
+| `api.media.upload` | upload media and create media folders |
+| `api.media.update` | rename media, reorder it and edit its details |
+| `api.media.delete` | delete media |
+| `api.config.site` | change the site settings |
+| `api.config.plugins` | change plugin settings |
+| `api.config.themes` | change theme settings |
+
+`api.pages.write`, `api.media.write` and `api.config.write` are shorthand for the three grants under each. So a demo where visitors can write and edit pages and add images, but never delete anything, is:
+
+```yaml
+demo:
+  writable: [api.pages.create, api.pages.update, api.media.upload]
+```
+
+Admin2 follows the grants: the editor offers Save but not Delete when only `api.pages.update` is granted, and shows a banner with the time until the next reset.
+
+Some things are always refused, whatever is granted: users and groups, packages, system tools, backups, webhooks, the demo controls themselves, the system, security, media, scheduler and backups settings, and the settings of the API, Admin, Login and Email plugins. Server paths, logs and backups are also hidden from demo accounts.
+
+A plugin's own API routes are refused too unless you list them in `demo.allow_routes`, as `METHOD /path` or `/path` below the API prefix, with `*` matching anything:
+
+```yaml
+demo:
+  allow_routes: ['POST /courses/*/progress']
+```
+
+### Pages visitors edit
+
+With `demo.escape_html` on (the default), pages a demo account saves show their raw HTML as text, so a visitor cannot put scripts or hidden links on the public site. Markdown, code blocks and images work as normal. A demo account can never save a page that runs Twig.
+
+### Saving and resetting
+
+```bash
+bin/plugin api demo:baseline   # save the current state as the one to reset to
+bin/plugin api demo:status     # what is allowed, when the next reset is, what has changed
+bin/plugin api demo:reset      # reset now
+```
+
+The same actions are in Admin2 under **Set Baseline / Reset Now**. Resets run every `demo.reset_interval` minutes (30 by default), both from the Grav scheduler (`bin/grav scheduler` in cron) and, for sites without one, on the first request after the interval has passed. Before each reset a safety copy of the current state is kept in `user/data/api/demo`, the last `demo.keep_safety_snapshots` of them (5 by default).
+
+A reset restores the folders a demo account can change: `user/pages` for pages, `user/pages` and `user/media` for media, and `user/config` plus each environment's settings folder for settings. In a settings folder only the settings a demo account can change are restored, so your own later changes to anything else, these demo settings included, are kept. Two more options add folders:
+
+- `demo.include_code: true` also restores `user/plugins` and `user/themes`.
+- `demo.extra_roots` lists more `user://` folders, such as `user://data` for what visitors do on the site itself, or `user://accounts` for sign-ups.
+
+`user/data/api` (API keys, the audit log and the demo's own files) and anything symlinked are never saved or restored. An extra folder that overlaps the settings folders, or sits in `user/data/api`, is ignored with a warning in the log. Change what a demo account may do, then run `demo:baseline` again so the saved state matches.
+
 ## Extending the API
 
 Other Grav plugins can register their own API routes by listening to the `onApiRegisterRoutes` event:
@@ -1012,8 +1117,14 @@ The sidebar item structure:
 | `label` | string | Display text in the sidebar |
 | `icon` | string | FontAwesome icon class (e.g., `fa-key`) |
 | `route` | string | Frontend route the item navigates to |
-| `priority` | int | Sort order (lower values appear first) |
+| `priority` | int | Sort order (higher values appear first) |
 | `badge` | string\|null | Optional badge text (e.g., count or status) |
+| `badgeEndpoint` | string | Optional API path returning `{ count: N }`, fetched for a live badge that overrides `badge` |
+| `authorize` | string\|array | Optional permission (or any-of list) a user needs to see the item |
+| `placement` | string | Optional `footer` to show the item in the sidebar's bottom group, above Settings, for site-wide tools such as a trash (Admin2 2.2.3 and later). Footer items aren't part of the arrangeable list. Default `main` |
+| `children` | array | Optional shortcuts a user can show under the item: each has an `id`, a `label`, a `route` (which may carry a `#` part) and optionally `default` (`true` to show it until the user picks their own), an `icon` and `authorize` |
+
+Each user arranges their own sidebar in Admin2 (the pencil at the bottom of the sidebar): they reorder and hide items, and star the `children` they want under an item. Until they pick, the children marked `default` show. A plugin's own page can star them too, through `window.__GRAV_SIDEBAR` in Admin2 2.2.0 and later (`children(itemId)` lists the ones it offers this user, `shortcuts(itemId)` the ones showing, `setShortcut(itemId, childId, on)` saves a change, and a `grav:sidebar:shortcuts` event on `window` says when they change). A super admin can save an arrangement as the site's default for everyone who hasn't arranged their own. The arrangement is the `sidebarLayout` preference, which names items by id (`plugin:<id>`) and keeps the picked children under `shortcuts`, keyed by item, so keep your item's `id` and its children's ids stable across releases.
 
 **Provide a page definition** via `onApiPluginPageInfo`:
 
@@ -1243,8 +1354,9 @@ The API fires events before and after all write operations, allowing plugins to 
 | `onApiPageCreated` | After page creation | `page` (PageInterface), `route`, `lang` |
 | `onApiBeforePageUpdate` | Before a page is updated | `page` (PageInterface), `data` (request body, modifiable by reference) |
 | `onApiPageUpdated` | After page update | `page` (PageInterface), `previous_template` (string, only when the template changed) |
-| `onApiBeforePageDelete` | Before a page is deleted | `page` (PageInterface), `lang` (if language-specific delete) |
-| `onApiPageDeleted` | After page deletion | `route`, `lang` (if language-specific delete) |
+| `onApiBeforePageDelete` | Before a page is deleted | `page` (PageInterface), `lang` (if language-specific delete), `method` (`batch` in a batch) |
+| `onApiPageDeleted` | After page deletion | `route`, `lang` (if language-specific delete), `undo` (set it to offer an undo, see below; `DELETE /pages/{route}` only), `method` (`batch` in a batch) |
+| `onApiPageDeleteInfo` | Once per request, when page records are built | `recoverable` (set it to `true` when your plugin keeps deleted pages so they can be restored), `user` |
 | `onApiPageMoved` | After page move | `page` (PageInterface), `old_route`, `new_route` |
 | `onApiBeforePageTranslate` | Before a translation is created | `page`, `lang`, `header`, `content` (modifiable by reference) |
 | `onApiPageTranslated` | After translation created | `page`, `route`, `lang` |
@@ -1352,6 +1464,33 @@ public function onApiPageDeleted(Event $event): void
 {
     $route = $event['route'];
     $this->searchIndex->remove($route);
+}
+```
+
+**Undo a page delete** (e.g. a plugin that keeps deleted pages in a trash). `onApiPageDeleted` carries an `undo` slot. Fill it with the call that brings the page back, and `DELETE /pages/{route}` answers `200` with `{"data": {"undo": {...}}}` instead of `204` (the `X-Invalidates` header is sent either way). Admin2 then shows the delete toast with an Undo button that makes that call, and opens the restored page (from the page editor) or refreshes the list. `endpoint` is a path relative to the API base (`/api/v1`), never a URL; `method` defaults to `POST`; `body` (a JSON object) and `label` (the button text, Admin2's own translated "Undo" when left out) are optional. A slot that doesn't fit this is ignored and the delete answers `204`. The undo call is an ordinary API request, so it must check the caller's permissions itself. Batch deletes don't offer an undo.
+
+```php
+public function onApiPageDeleted(Event $event): void
+{
+    $id = $this->trash->commitLatest();
+    $event['undo'] = [
+        'method'   => 'POST',
+        'endpoint' => '/my-trash/' . $id . '/restore',
+        'body'     => ['mode' => 'original'],
+    ];
+}
+```
+
+The response's `route` (when the undo endpoint returns one as `data.route`) is the page Admin2 opens after the undo.
+
+**Say deletes can be undone.** A plugin that keeps deleted pages sets `recoverable` on `onApiPageDeleteInfo`, and every page record then carries `delete_recoverable: true`, so a client can tell people the delete can be undone instead of warning that it is permanent:
+
+```php
+public function onApiPageDeleteInfo(Event $event): void
+{
+    if ($this->trashEnabled()) {
+        $event['recoverable'] = true;
+    }
 }
 ```
 

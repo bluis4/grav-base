@@ -313,7 +313,13 @@ class ApiRouter extends ProcessorBase
             // dispatch so it uniformly catches core AND plugin-registered routes,
             // and before any controller executes. No-op for non-demo users.
             if ($user) {
-                (new DemoModeMiddleware())->check($user, $request->getMethod(), $apiRoutePath, $isPublic);
+                $demoGrant = (new DemoModeMiddleware(
+                    (array) $this->config->get('plugins.api.demo.writable', []),
+                    (array) $this->config->get('plugins.api.demo.allow_routes', []),
+                ))->check($user, $request->getMethod(), $apiRoutePath, $isPublic);
+                if ($demoGrant !== null) {
+                    $request = $request->withAttribute(DemoModeMiddleware::ATTRIBUTE, $demoGrant);
+                }
             }
 
             // Opportunistically reset stale demo content back to the baseline.
@@ -758,6 +764,10 @@ class ApiRouter extends ProcessorBase
         $r->addRoute('GET', '/pages/{route:.+}/media/{filename}/meta', [MediaController::class, 'getPageMediaMeta']);
         $r->addRoute('PATCH', '/pages/{route:.+}/media/{filename}/meta', [MediaController::class, 'savePageMediaMeta']);
         $r->addRoute('DELETE', '/pages/{route:.+}/media/{filename}/meta', [MediaController::class, 'deletePageMediaMeta']);
+        // Batch metadata for page media, the counterpart of `/media/batch/meta`
+        // below. It only answers POST, so it cannot be shadowed by (or shadow)
+        // the per-file routes above.
+        $r->addRoute('POST', '/pages/{route:.+}/media/batch/meta', [MediaController::class, 'batchPageMediaMeta']);
         $r->addRoute('POST', '/pages/{route:.+}/move', [PagesController::class, 'move']);
         $r->addRoute('POST', '/pages/{route:.+}/copy', [PagesController::class, 'copy']);
         $r->addRoute('GET', '/pages/{route:.+}', [PagesController::class, 'show']);
