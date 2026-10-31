@@ -17,7 +17,8 @@
     * Added the Section / Layout modular page template with configurable columns, layout and alignment controls, spacing/background settings, and support for editor-managed components.
     * Added FAB-only link destinations (Grav page or custom URL) and configurable same-tab, new-tab, and new-window behavior.
     * Added a FAB position control for inline-in-column or fixed placement, plus vertical and quarter-circle Speed Dial layouts.
-    * Added component-specific Blueprint fields for Text, Button, Dropdown, FAB, Modal, Swap, Theme Controller, Badge, and Card, replacing generic fields where those components were extracted.
+    * Extracted focused, daisyUI-informed Blueprint controls for Button, Dropdown, FAB, Modal, Swap, and Theme Controller. These schemas expose only the parameters considered necessary for this theme, rather than attempting to mirror every option offered by daisyUI.
+    * Added component-specific Blueprint fields for Text, Badge, and Card, replacing generic fields where those components were extracted.
 
 2. [](#improvement)
     * Organized component renderers by category and routed component rendering through the shared dispatcher; updated the component library to use the current component data shape.
