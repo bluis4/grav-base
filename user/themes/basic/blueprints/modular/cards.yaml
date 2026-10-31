@@ -38,24 +38,67 @@ form:
               fields:
                 .title:
                   type: text
-                  label: Title
+                  label: Card Title
                 .description:
                   type: textarea
-                  label: Description
+                  label: Card Content
                 .image:
                   type: media
-                  label: Image
+                  label: Card Image
                   sources:
                     - page
                     - site
                   accept:
                     - image/*
+                .image_position:
+                  type: select
+                  label: Image position
+                  default: top
+                  options:
+                    top: Top
+                    left: Left
+                    right: Right
+                    bottom: Bottom
                 .alt:
                   type: text
                   label: Image alt text
                 .button_label:
                   type: text
-                  label: Button label
-                .button_url:
+                  label: Button text
+                  help: Leave empty to hide the button.
+                .button_link_source:
+                  type: elements
+                  label: Link destination
+                  default: custom
+                  options:
+                    page: Choose a page
+                    custom: Custom URL
+                  fields:
+                    page:
+                      type: element
+                      fields:
+                        .button_page:
+                          type: pages
+                          label: Page
+                          show_root: true
+                          show_modular: false
+                          multiple: false
+                    custom:
+                      type: element
+                      fields:
+                        .button_custom_url:
+                          type: url
+                          label: Custom URL
+                          placeholder: https://example.com or /contact
+                .button_url_behavior:
+                  type: select
+                  label: URL behavior
+                  default: same
+                  options:
+                    same: Open in the same tab
+                    new_tab: Open in a new tab
+                    new_window: Open in a new window
+                .button_extra_classes:
                   type: text
-                  label: Button URL
+                  label: Style classes
+                  help: Add custom CSS or daisyUI classes for the card button.

@@ -1,0 +1,17 @@
+form:
+  fields:
+    actions/swap:
+      type: element
+      fields:
+        .swap_off:
+          type: text
+          label: Off text
+          default: Off
+        .swap_on:
+          type: text
+          label: On text
+          default: On
+        .swap_label:
+          type: text
+          label: Accessible label
+          default: Toggle content

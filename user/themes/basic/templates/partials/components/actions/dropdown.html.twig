@@ -1,0 +1,16 @@
+{% set dropdown_position = dropdown_position|default('start') %}
+{% set dropdown_direction = dropdown_direction|default('bottom') %}
+{% set dropdown_on_hover = dropdown_on_hover|default(false) %}
+{% set dropdown_classes = ['dropdown', 'component-dropdown', 'dropdown-' ~ dropdown_position, 'dropdown-' ~ dropdown_direction] %}
+{% if dropdown_on_hover %}{% set dropdown_classes = dropdown_classes|merge(['dropdown-hover']) %}{% endif %}
+<details class="{{ dropdown_classes|join(' ')|e('html_attr') }}" data-dropdown-hover="{{ dropdown_on_hover ? 'true' : 'false' }}">
+    <summary class="btn">{{ dropdown_label|default('Open menu')|e }}</summary>
+    <ul class="menu dropdown-content z-10 mt-2 w-52 rounded-box bg-base-100 p-2 shadow-sm">
+        {% for item in dropdown_items|default([]) %}
+            {% set item_behavior = item.url_behavior|default('same') %}
+            {% set item_target = item_behavior == 'same' ? '_self' : '_blank' %}
+            {% set item_popup_name = 'basic-dropdown-' ~ loop.index ~ '-' ~ random() %}
+            <li><a href="{{ item.url|default('#')|e('html_attr') }}" target="{{ item_target|e('html_attr') }}"{% if item_target == '_blank' %} rel="noopener noreferrer"{% endif %}{% if item_behavior == 'new_window' %} onclick="const popup = window.open(this.href, '{{ item_popup_name|e('js') }}', 'popup,width=900,height=700'); if (popup) { popup.opener = null; return false; }"{% endif %}>{{ item.label|default('Menu item')|e }}</a></li>
+        {% endfor %}
+    </ul>
+</details>

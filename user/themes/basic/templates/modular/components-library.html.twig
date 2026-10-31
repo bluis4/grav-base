@@ -1,24 +1,24 @@
 {% set demo_image = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 320 180%22%3E%3Crect width=%22320%22 height=%22180%22 fill=%22%23dbeafe%22/%3E%3Ccircle cx=%22250%22 cy=%2250%22 r=%2228%22 fill=%22%23fbbf24%22/%3E%3Cpath d=%22M0 140 90 70l60 55 55-42 115 75v22H0z%22 fill=%22%230f766e%22/%3E%3C/svg%3E' %}
 {% set categories = [
     {id: 'base', title: 'Base', items: [
-        {id: 'text', title: 'Text', partial: 'partials/blocks/base/text.html.twig', vars: {block: {name: 'Eyebrow', content: 'A block of text with its own styling.', tag: 'p'}}},
-        {id: 'image', title: 'Image', partial: 'partials/blocks/base/image.html.twig', vars: {image_url: demo_image, block: {alt: 'Abstract hills'}}}
+        {id: 'text', title: 'Text', partial: 'partials/components/base/text.html.twig', vars: {block: {name: 'Eyebrow', content: 'A block of text with its own styling.', tag: 'p'}}},
+        {id: 'image', title: 'Image', partial: 'partials/components/base/image.html.twig', vars: {image_url: demo_image, block: {alt: 'Abstract hills'}}}
     ]},
     {id: 'actions', title: 'Actions', items: [
-        {id: 'button', title: 'Button', partial: 'partials/blocks/actions/button.html.twig', vars: {button_url: '#actions', button_label: 'Button', button_class: 'btn-primary'}},
-        {id: 'dropdown', title: 'Dropdown', partial: 'partials/blocks/actions/dropdown.html.twig', vars: {dropdown_label: 'Open menu', dropdown_items: [{label: 'Profile', url: '#actions'}, {label: 'Settings', url: '#actions'}]}},
-        {id: 'fab', title: 'FAB / Speed Dial', partial: 'partials/blocks/actions/fab.html.twig', vars: {fab_demo_class: 'fab-demo-inline', fab_label: 'Quick actions', fab_actions: [{label: 'Create', icon: '+', url: '#actions'}, {label: 'Edit', icon: '✎', url: '#actions'}, {label: 'Save', icon: '✓', url: '#actions'}]}},
-        {id: 'modal', title: 'Modal', partial: 'partials/blocks/actions/modal.html.twig', vars: {modal_id: 'demo-modal', modal_title: 'Example dialog', modal_content: 'This is a modal dialog.', modal_trigger: 'Open modal'}},
-        {id: 'swap', title: 'Swap', partial: 'partials/blocks/actions/swap.html.twig', vars: {swap_label: 'Toggle state', swap_off: 'Off', swap_on: 'On'}},
-        {id: 'theme-controller', title: 'Theme Controller', partial: 'partials/blocks/actions/theme-controller.html.twig', vars: {theme_controller_label: 'Switch to dark theme'}}
+        {id: 'button', title: 'Button', partial: 'partials/components/actions/button.html.twig', vars: {button_url: '#actions', button_label: 'Button', button_class: 'btn-primary'}},
+        {id: 'dropdown', title: 'Dropdown', partial: 'partials/components/actions/dropdown.html.twig', vars: {dropdown_label: 'Open menu', dropdown_items: [{label: 'Profile', url: '#actions'}, {label: 'Settings', url: '#actions'}]}},
+        {id: 'fab', title: 'FAB / Speed Dial', partial: 'partials/components/actions/fab.html.twig', vars: {fab_demo_class: 'fab-demo-inline', fab_title: 'Quick actions', fab_mode: 'speed_dial', fab_style: 'vertical', fab_items: [{label: 'Create', type: 'text', text: 'Create', url: '#actions'}, {label: 'Edit', type: 'icon', icon: 'bi-pencil', url: '#actions'}, {label: 'Save', type: 'icon', icon: 'bi-check2', url: '#actions'}]}},
+        {id: 'modal', title: 'Modal', partial: 'partials/components/actions/modal.html.twig', vars: {modal_id: 'demo-modal', modal_title: 'Example dialog', modal_content: 'This is a modal dialog.', modal_trigger: 'Open modal'}},
+        {id: 'swap', title: 'Swap', partial: 'partials/components/actions/swap.html.twig', vars: {swap_label: 'Toggle state', swap_off: 'Off', swap_on: 'On'}},
+        {id: 'theme-controller', title: 'Theme Controller', partial: 'partials/components/actions/theme-controller.html.twig', vars: {theme_controller_label: 'Switch to dark theme'}}
     ]},
     {id: 'data-display', title: 'Data display', items: [
-        {id: 'accordion', title: 'Accordion', partial: 'partials/blocks/data-display/accordion.html.twig', vars: {accordion_group: 'demo-accordion', accordion_items: [{title: 'First item', content: 'Accordion content appears here.'}, {title: 'Second item', content: 'More expandable content.'}]}},
-        {id: 'avatar', title: 'Avatar', partial: 'partials/blocks/data-display/avatar.html.twig', vars: {avatar_fallback: 'B'}},
-        {id: 'aura', title: 'Aura', partial: 'partials/blocks/data-display/aura.html.twig', vars: {aura_content: 'A highlighted component'}},
-        {id: 'badge', title: 'Badge', partial: 'partials/blocks/data-display/badge.html.twig', vars: {badge_label: 'New', badge_style: 'badge-primary'}},
-        {id: 'card', title: 'Card', partial: 'partials/blocks/data-display/card.html.twig', vars: {module: page, card: {title: 'Card title', description: 'Cards group related content in a clear, readable format.', button_url: '#data-display', button_label: 'Learn more'}}},
-        {id: 'carousel', title: 'Carousel', partial: 'partials/blocks/data-display/carousel.html.twig', vars: {carousel_id: 'components-carousel', carousel_items: [
+        {id: 'accordion', title: 'Accordion', partial: 'partials/components/data-display/accordion.html.twig', vars: {accordion_group: 'demo-accordion', accordion_items: [{title: 'First item', content: 'Accordion content appears here.'}, {title: 'Second item', content: 'More expandable content.'}]}},
+        {id: 'avatar', title: 'Avatar', partial: 'partials/components/data-display/avatar.html.twig', vars: {avatar_fallback: 'B'}},
+        {id: 'aura', title: 'Aura', partial: 'partials/components/data-display/aura.html.twig', vars: {aura_content: 'A highlighted component'}},
+        {id: 'badge', title: 'Badge', partial: 'partials/components/data-display/badge.html.twig', vars: {badge_label: 'New', badge_style: 'badge-primary'}},
+        {id: 'card', title: 'Card', partial: 'partials/components/data-display/card.html.twig', vars: {module: page, card: {title: 'Card title', description: 'Cards group related content in a clear, readable format.', button_url: '#data-display', button_label: 'Learn more'}}},
+        {id: 'carousel', title: 'Carousel', partial: 'partials/components/data-display/carousel.html.twig', vars: {carousel_id: 'components-carousel', carousel_items: [
             {image: 'https://img.daisyui.com/images/stock/photo-1559703248-dcaaec9fab78.webp', alt: 'Burger on a plate'},
             {image: 'https://img.daisyui.com/images/stock/photo-1565098772267-60af42b81ef2.webp', alt: 'Fresh fruit'},
             {image: 'https://img.daisyui.com/images/stock/photo-1572635148818-ef6fd45eb394.webp', alt: 'Sunglasses'},
@@ -27,71 +27,71 @@
             {image: 'https://img.daisyui.com/images/stock/photo-1559181567-c3190ca9959b.webp', alt: 'Red apples'},
             {image: 'https://img.daisyui.com/images/stock/photo-1601004890684-d8cbf643f5f2.webp', alt: 'Strawberries'}
         ]}},
-        {id: 'chat-bubble', title: 'Chat bubble', partial: 'partials/blocks/data-display/chat-bubble.html.twig', vars: {chat_name: 'Visitor', chat_message: 'Hello! How can I help?', chat_time: '12:45'}},
-        {id: 'collapse', title: 'Collapse', partial: 'partials/blocks/data-display/collapse.html.twig', vars: {collapse_title: 'Show details', collapse_content: 'This content is revealed when expanded.'}},
-        {id: 'countdown', title: 'Countdown', partial: 'partials/blocks/data-display/countdown.html.twig', vars: {countdown_value: 42, countdown_seconds: 42, countdown_label: '42 seconds remaining'}},
-        {id: 'diff', title: 'Diff', partial: 'partials/blocks/data-display/diff.html.twig', vars: {diff_before: 'Before', diff_after: 'After'}},
-        {id: 'hover-3d-card', title: 'Hover 3D card', partial: 'partials/blocks/data-display/hover-3d-card.html.twig', vars: {hover_card_title: 'Hover to tilt', hover_card_content: 'Move your pointer over this card.'}},
-        {id: 'hover-gallery', title: 'Hover Gallery', partial: 'partials/blocks/data-display/hover-gallery.html.twig', vars: {gallery_items: [
+        {id: 'chat-bubble', title: 'Chat bubble', partial: 'partials/components/data-display/chat-bubble.html.twig', vars: {chat_name: 'Visitor', chat_message: 'Hello! How can I help?', chat_time: '12:45'}},
+        {id: 'collapse', title: 'Collapse', partial: 'partials/components/data-display/collapse.html.twig', vars: {collapse_title: 'Show details', collapse_content: 'This content is revealed when expanded.'}},
+        {id: 'countdown', title: 'Countdown', partial: 'partials/components/data-display/countdown.html.twig', vars: {countdown_value: 42, countdown_seconds: 42, countdown_label: '42 seconds remaining'}},
+        {id: 'diff', title: 'Diff', partial: 'partials/components/data-display/diff.html.twig', vars: {diff_before: 'Before', diff_after: 'After'}},
+        {id: 'hover-3d-card', title: 'Hover 3D card', partial: 'partials/components/data-display/hover-3d-card.html.twig', vars: {hover_card_title: 'Hover to tilt', hover_card_content: 'Move your pointer over this card.'}},
+        {id: 'hover-gallery', title: 'Hover Gallery', partial: 'partials/components/data-display/hover-gallery.html.twig', vars: {gallery_items: [
             {image: 'https://img.daisyui.com/images/stock/daisyui-hat-1.webp', alt: 'DaisyUI hat, front view'},
             {image: 'https://img.daisyui.com/images/stock/daisyui-hat-2.webp', alt: 'DaisyUI hat, side view'},
             {image: 'https://img.daisyui.com/images/stock/daisyui-hat-3.webp', alt: 'DaisyUI hat, back view'},
             {image: 'https://img.daisyui.com/images/stock/daisyui-hat-4.webp', alt: 'DaisyUI hat detail'}
         ]}},
-        {id: 'kbd', title: 'Kbd', partial: 'partials/blocks/data-display/kbd.html.twig', vars: {keyboard_keys: ['Ctrl', 'S']}},
-        {id: 'list', title: 'List', partial: 'partials/blocks/data-display/list.html.twig', vars: {list_items: ['First item', 'Second item', 'Third item']}},
-        {id: 'stat', title: 'Stat', partial: 'partials/blocks/data-display/stat.html.twig', vars: {stat_title: 'Page views', stat_value: '1,250', stat_description: '+12% this month'}},
-        {id: 'status', title: 'Status', partial: 'partials/blocks/data-display/status.html.twig', vars: {status_label: 'Online', status_style: 'status-success'}},
-        {id: 'table', title: 'Table', partial: 'partials/blocks/data-display/table.html.twig', vars: {table_columns: ['Name', 'Role'], table_rows: [['Alex', 'Editor'], ['Sam', 'Admin']]}},
-        {id: 'text-rotate', title: 'Text Rotate', partial: 'partials/blocks/data-display/text-rotate.html.twig', vars: {rotating_lines: ['Simple', 'Flexible', 'Reusable']}},
-        {id: 'timeline', title: 'Timeline', partial: 'partials/blocks/data-display/timeline.html.twig', vars: {timeline_items: [{time: 'Today', title: 'Start', content: 'Project created.'}, {time: 'Next', title: 'Build', content: 'Add your content.'}]}}
+        {id: 'kbd', title: 'Kbd', partial: 'partials/components/data-display/kbd.html.twig', vars: {keyboard_keys: ['Ctrl', 'S']}},
+        {id: 'list', title: 'List', partial: 'partials/components/data-display/list.html.twig', vars: {list_items: ['First item', 'Second item', 'Third item']}},
+        {id: 'stat', title: 'Stat', partial: 'partials/components/data-display/stat.html.twig', vars: {stat_title: 'Page views', stat_value: '1,250', stat_description: '+12% this month'}},
+        {id: 'status', title: 'Status', partial: 'partials/components/data-display/status.html.twig', vars: {status_label: 'Online', status_style: 'status-success'}},
+        {id: 'table', title: 'Table', partial: 'partials/components/data-display/table.html.twig', vars: {table_columns: ['Name', 'Role'], table_rows: [['Alex', 'Editor'], ['Sam', 'Admin']]}},
+        {id: 'text-rotate', title: 'Text Rotate', partial: 'partials/components/data-display/text-rotate.html.twig', vars: {rotating_lines: ['Simple', 'Flexible', 'Reusable']}},
+        {id: 'timeline', title: 'Timeline', partial: 'partials/components/data-display/timeline.html.twig', vars: {timeline_items: [{time: 'Today', title: 'Start', content: 'Project created.'}, {time: 'Next', title: 'Build', content: 'Add your content.'}]}}
     ]},
     {id: 'navigation', title: 'Navigation', items: [
-        {id: 'breadcrumbs', title: 'Breadcrumbs', partial: 'partials/blocks/navigation/breadcrumbs.html.twig', vars: {breadcrumb_items: [{label: 'Home', url: '#navigation'}, {label: 'Components', url: '#navigation'}, {label: 'Breadcrumbs'}]}},
-        {id: 'dock', title: 'Dock', partial: 'partials/blocks/navigation/dock.html.twig', vars: {dock_demo_class: 'dock-demo-inline', dock_class: 'bg-neutral text-neutral-content', dock_items: [{label: 'Home', url: '#navigation', icon: '⌂', active: true}, {label: 'Search', url: '#navigation', icon: '⌕'}, {label: 'Profile', url: '#navigation', icon: '◉'}]}},
-        {id: 'link', title: 'Link', partial: 'partials/blocks/navigation/link.html.twig', vars: {link_label: 'Read more', link_url: '#navigation'}},
-        {id: 'megamenu', title: 'Megamenu', partial: 'partials/blocks/navigation/megamenu.html.twig', vars: {megamenu_items: [{label: 'Products', groups: [{title: 'Explore', links: [{label: 'Overview', url: '#navigation'}, {label: 'Features', url: '#navigation'}]}, {title: 'Resources', links: [{label: 'Guides', url: '#navigation'}]}]}]}},
-        {id: 'menu', title: 'Menu', partial: 'partials/blocks/navigation/menu.html.twig', vars: {menu_items: [{label: 'Overview', url: '#navigation'}, {label: 'Details', children: [{label: 'First link', url: '#navigation'}, {label: 'Second link', url: '#navigation'}]}]}},
-        {id: 'navbar', title: 'Navbar', partial: 'partials/blocks/navigation/navbar.html.twig', vars: {navbar_brand: 'Brand', navbar_items: [{label: 'Home', url: '#navigation'}, {label: 'About', url: '#navigation'}]}},
-        {id: 'pagination', title: 'Pagination', partial: 'partials/blocks/navigation/pagination.html.twig', vars: {pagination_pages: [1, 2, 3], pagination_current: 2, pagination_url: '#page-'}},
-        {id: 'steps', title: 'Steps', partial: 'partials/blocks/navigation/steps.html.twig', vars: {step_items: [{label: 'Register', completed: true}, {label: 'Choose plan'}, {label: 'Finish'}]}},
-        {id: 'tabs', title: 'Tabs', partial: 'partials/blocks/navigation/tabs.html.twig', vars: {tabs_id: 'components-tabs', tabs_class: 'tabs-border', tab_items: [{label: 'Overview', active: true, content: '<h4 class="mb-2 font-semibold">Overview</h4><p>This panel is selected by default. Choose another tab to switch the content.</p>'}, {label: 'Details', content: '<h4 class="mb-2 font-semibold">Details</h4><p>Tabs use DaisyUI radio controls, so switching works without extra JavaScript.</p>'}, {label: 'Resources', content: '<h4 class="mb-2 font-semibold">Resources</h4><p>Use this panel for links, instructions, or other related information.</p>'}]}}
+        {id: 'breadcrumbs', title: 'Breadcrumbs', partial: 'partials/components/navigation/breadcrumbs.html.twig', vars: {breadcrumb_items: [{label: 'Home', url: '#navigation'}, {label: 'Components', url: '#navigation'}, {label: 'Breadcrumbs'}]}},
+        {id: 'dock', title: 'Dock', partial: 'partials/components/navigation/dock.html.twig', vars: {dock_demo_class: 'dock-demo-inline', dock_class: 'bg-neutral text-neutral-content', dock_items: [{label: 'Home', url: '#navigation', icon: '⌂', active: true}, {label: 'Search', url: '#navigation', icon: '⌕'}, {label: 'Profile', url: '#navigation', icon: '◉'}]}},
+        {id: 'link', title: 'Link', partial: 'partials/components/navigation/link.html.twig', vars: {link_label: 'Read more', link_url: '#navigation'}},
+        {id: 'megamenu', title: 'Megamenu', partial: 'partials/components/navigation/megamenu.html.twig', vars: {megamenu_items: [{label: 'Products', groups: [{title: 'Explore', links: [{label: 'Overview', url: '#navigation'}, {label: 'Features', url: '#navigation'}]}, {title: 'Resources', links: [{label: 'Guides', url: '#navigation'}]}]}]}},
+        {id: 'menu', title: 'Menu', partial: 'partials/components/navigation/menu.html.twig', vars: {menu_items: [{label: 'Overview', url: '#navigation'}, {label: 'Details', children: [{label: 'First link', url: '#navigation'}, {label: 'Second link', url: '#navigation'}]}]}},
+        {id: 'navbar', title: 'Navbar', partial: 'partials/components/navigation/navbar.html.twig', vars: {navbar_brand: 'Brand', navbar_items: [{label: 'Home', url: '#navigation'}, {label: 'About', url: '#navigation'}]}},
+        {id: 'pagination', title: 'Pagination', partial: 'partials/components/navigation/pagination.html.twig', vars: {pagination_pages: [1, 2, 3], pagination_current: 2, pagination_url: '#page-'}},
+        {id: 'steps', title: 'Steps', partial: 'partials/components/navigation/steps.html.twig', vars: {step_items: [{label: 'Register', completed: true}, {label: 'Choose plan'}, {label: 'Finish'}]}},
+        {id: 'tabs', title: 'Tabs', partial: 'partials/components/navigation/tabs.html.twig', vars: {tabs_id: 'components-tabs', tabs_class: 'tabs-border', tab_items: [{label: 'Overview', active: true, content: '<h4 class="mb-2 font-semibold">Overview</h4><p>This panel is selected by default. Choose another tab to switch the content.</p>'}, {label: 'Details', content: '<h4 class="mb-2 font-semibold">Details</h4><p>Tabs use DaisyUI radio controls, so switching works without extra JavaScript.</p>'}, {label: 'Resources', content: '<h4 class="mb-2 font-semibold">Resources</h4><p>Use this panel for links, instructions, or other related information.</p>'}]}}
     ]},
     {id: 'feedback', title: 'Feedback', items: [
-        {id: 'alert', title: 'Alert', partial: 'partials/blocks/feedback/alert.html.twig', vars: {alert_class: 'alert-info', alert_message: 'A helpful message for your visitors.'}},
-        {id: 'loading', title: 'Loading', partial: 'partials/blocks/feedback/loading.html.twig', vars: {loading_style: 'loading-spinner', loading_size: 'loading-lg'}},
-        {id: 'progress', title: 'Progress', partial: 'partials/blocks/feedback/progress.html.twig', vars: {progress_value: 65, progress_label: 'Upload progress'}},
-        {id: 'radial-progress', title: 'Radial progress', partial: 'partials/blocks/feedback/radial-progress.html.twig', vars: {radial_progress_value: 72}},
-        {id: 'skeleton', title: 'Skeleton', partial: 'partials/blocks/feedback/skeleton.html.twig', vars: {skeleton_circle: false}},
-        {id: 'toast', title: 'Toast', partial: 'partials/blocks/feedback/toast.html.twig', vars: {toast_inline: true, toast_position: '', toast_class: 'alert-success', toast_message: 'Changes saved successfully.'}},
-        {id: 'tooltip', title: 'Tooltip', partial: 'partials/blocks/feedback/tooltip.html.twig', vars: {tooltip_text: 'Helpful context', tooltip_content: 'Hover or focus me'}}
+        {id: 'alert', title: 'Alert', partial: 'partials/components/feedback/alert.html.twig', vars: {alert_class: 'alert-info', alert_message: 'A helpful message for your visitors.'}},
+        {id: 'loading', title: 'Loading', partial: 'partials/components/feedback/loading.html.twig', vars: {loading_style: 'loading-spinner', loading_size: 'loading-lg'}},
+        {id: 'progress', title: 'Progress', partial: 'partials/components/feedback/progress.html.twig', vars: {progress_value: 65, progress_label: 'Upload progress'}},
+        {id: 'radial-progress', title: 'Radial progress', partial: 'partials/components/feedback/radial-progress.html.twig', vars: {radial_progress_value: 72}},
+        {id: 'skeleton', title: 'Skeleton', partial: 'partials/components/feedback/skeleton.html.twig', vars: {skeleton_circle: false}},
+        {id: 'toast', title: 'Toast', partial: 'partials/components/feedback/toast.html.twig', vars: {toast_inline: true, toast_position: '', toast_class: 'alert-success', toast_message: 'Changes saved successfully.'}},
+        {id: 'tooltip', title: 'Tooltip', partial: 'partials/components/feedback/tooltip.html.twig', vars: {tooltip_text: 'Helpful context', tooltip_content: 'Hover or focus me'}}
     ]},
     {id: 'data-input', title: 'Data input', items: [
-        {id: 'calendar', title: 'Calendar', partial: 'partials/blocks/data-input/calendar.html.twig', vars: {calendar_month: 'October 2026', calendar_days: [{label: '1'}, {label: '2'}, {label: '3'}, {label: '4'}, {label: '5'}, {label: '6'}, {label: '7'}, {label: '8'}, {label: '9'}, {label: '10'}, {label: '11'}, {label: '12'}, {label: '13'}, {label: '14', selected: true}, {label: '15'}, {label: '16'}, {label: '17'}, {label: '18'}, {label: '19'}, {label: '20'}, {label: '21'}]}},
-        {id: 'checkbox', title: 'Checkbox', partial: 'partials/blocks/data-input/checkbox.html.twig', vars: {checkbox_label: 'I agree to the terms'}},
-        {id: 'fieldset', title: 'Fieldset', partial: 'partials/blocks/data-input/fieldset.html.twig', vars: {fieldset_legend: 'Account', fieldset_description: 'Your account details', fieldset_content: '<label class="input"><input type="text" placeholder="Name"></label>'}},
-        {id: 'file-input', title: 'File Input', partial: 'partials/blocks/data-input/file-input.html.twig', vars: {file_input_label: 'Upload a file', file_input_hint: 'PNG or JPG'}},
-        {id: 'filter', title: 'Filter', partial: 'partials/blocks/data-input/filter.html.twig', vars: {filter_items: [{label: 'All', value: 'all', selected: true}, {label: 'Open', value: 'open'}, {label: 'Closed', value: 'closed'}]}},
-        {id: 'label', title: 'Label', partial: 'partials/blocks/data-input/label.html.twig', vars: {label_for: 'demo-labeled-input', label_text: 'Email address', label_hint: 'Required'}},
-        {id: 'radio', title: 'Radio', partial: 'partials/blocks/data-input/radio.html.twig', vars: {radio_name: 'demo-plan', radio_value: 'basic', radio_label: 'Basic plan', radio_checked: true}},
-        {id: 'range', title: 'Range', partial: 'partials/blocks/data-input/range.html.twig', vars: {range_label: 'Volume', range_value: 65}},
-        {id: 'rating', title: 'Rating', partial: 'partials/blocks/data-input/rating.html.twig', vars: {rating_name: 'demo-rating', rating_value: 4}},
-        {id: 'select', title: 'Select', partial: 'partials/blocks/data-input/select.html.twig', vars: {select_label: 'Choose a plan', select_options: [{label: 'Starter', value: 'starter', selected: true}, {label: 'Pro', value: 'pro'}, {label: 'Team', value: 'team'}]}},
-        {id: 'input', title: 'Text Input', partial: 'partials/blocks/data-input/input.html.twig', vars: {input_label: 'Your name', input_placeholder: 'Enter your name'}},
-        {id: 'textarea', title: 'Textarea', partial: 'partials/blocks/data-input/textarea.html.twig', vars: {textarea_label: 'Message', textarea_placeholder: 'Write a message…'}},
-        {id: 'toggle', title: 'Toggle', partial: 'partials/blocks/data-input/toggle.html.twig', vars: {toggle_label: 'Enable notifications'}},
-        {id: 'validator', title: 'Validator', partial: 'partials/blocks/data-input/validator.html.twig', vars: {validator_label: 'Email address', validator_hint: 'Enter a valid email address.'}},
-        {id: 'otp', title: 'OTP', partial: 'partials/blocks/data-input/otp.html.twig', vars: {otp_label: 'Verification code', otp_length: 6}}
+        {id: 'calendar', title: 'Calendar', partial: 'partials/components/data-input/calendar.html.twig', vars: {calendar_month: 'October 2026', calendar_days: [{label: '1'}, {label: '2'}, {label: '3'}, {label: '4'}, {label: '5'}, {label: '6'}, {label: '7'}, {label: '8'}, {label: '9'}, {label: '10'}, {label: '11'}, {label: '12'}, {label: '13'}, {label: '14', selected: true}, {label: '15'}, {label: '16'}, {label: '17'}, {label: '18'}, {label: '19'}, {label: '20'}, {label: '21'}]}},
+        {id: 'checkbox', title: 'Checkbox', partial: 'partials/components/data-input/checkbox.html.twig', vars: {checkbox_label: 'I agree to the terms'}},
+        {id: 'fieldset', title: 'Fieldset', partial: 'partials/components/data-input/fieldset.html.twig', vars: {fieldset_legend: 'Account', fieldset_description: 'Your account details', fieldset_content: '<label class="input"><input type="text" placeholder="Name"></label>'}},
+        {id: 'file-input', title: 'File Input', partial: 'partials/components/data-input/file-input.html.twig', vars: {file_input_label: 'Upload a file', file_input_hint: 'PNG or JPG'}},
+        {id: 'filter', title: 'Filter', partial: 'partials/components/data-input/filter.html.twig', vars: {filter_items: [{label: 'All', value: 'all', selected: true}, {label: 'Open', value: 'open'}, {label: 'Closed', value: 'closed'}]}},
+        {id: 'label', title: 'Label', partial: 'partials/components/data-input/label.html.twig', vars: {label_for: 'demo-labeled-input', label_text: 'Email address', label_hint: 'Required'}},
+        {id: 'radio', title: 'Radio', partial: 'partials/components/data-input/radio.html.twig', vars: {radio_name: 'demo-plan', radio_value: 'basic', radio_label: 'Basic plan', radio_checked: true}},
+        {id: 'range', title: 'Range', partial: 'partials/components/data-input/range.html.twig', vars: {range_label: 'Volume', range_value: 65}},
+        {id: 'rating', title: 'Rating', partial: 'partials/components/data-input/rating.html.twig', vars: {rating_name: 'demo-rating', rating_value: 4}},
+        {id: 'select', title: 'Select', partial: 'partials/components/data-input/select.html.twig', vars: {select_label: 'Choose a plan', select_options: [{label: 'Starter', value: 'starter', selected: true}, {label: 'Pro', value: 'pro'}, {label: 'Team', value: 'team'}]}},
+        {id: 'input', title: 'Text Input', partial: 'partials/components/data-input/input.html.twig', vars: {input_label: 'Your name', input_placeholder: 'Enter your name'}},
+        {id: 'textarea', title: 'Textarea', partial: 'partials/components/data-input/textarea.html.twig', vars: {textarea_label: 'Message', textarea_placeholder: 'Write a message…'}},
+        {id: 'toggle', title: 'Toggle', partial: 'partials/components/data-input/toggle.html.twig', vars: {toggle_label: 'Enable notifications'}},
+        {id: 'validator', title: 'Validator', partial: 'partials/components/data-input/validator.html.twig', vars: {validator_label: 'Email address', validator_hint: 'Enter a valid email address.'}},
+        {id: 'otp', title: 'OTP', partial: 'partials/components/data-input/otp.html.twig', vars: {otp_label: 'Verification code', otp_length: 6}}
     ]},
     {id: 'layout', title: 'Layout', items: [
-        {id: 'divider', title: 'Divider', partial: 'partials/blocks/layout/divider.html.twig', vars: {divider_label: 'OR'}},
-        {id: 'drawer', title: 'Drawer', partial: 'partials/blocks/layout/drawer.html.twig', vars: {drawer_id: 'demo-drawer', drawer_button: 'Open drawer', drawer_content: '<p>Page content</p>', drawer_sidebar: '<ul class="menu"><li><a href="#layout">Navigation item</a></li></ul>'}},
-        {id: 'footer', title: 'Footer', partial: 'partials/blocks/layout/footer.html.twig', vars: {footer_brand: 'Basic', footer_text: 'A simple footer component.', footer_links: [{label: 'About', url: '#layout'}, {label: 'Contact', url: '#layout'}]}},
-        {id: 'hero', title: 'Hero', partial: 'partials/blocks/layout/hero.html.twig', vars: {hero_title: 'Hero title', hero_text: 'A clear introduction to this page.', hero_class: 'min-h-64 bg-base-200'}},
-        {id: 'indicator', title: 'Indicator', partial: 'partials/blocks/layout/indicator.html.twig', vars: {indicator_label: 'New', indicator_content: 'Inbox'}},
-        {id: 'join', title: 'Join', partial: 'partials/blocks/layout/join.html.twig', vars: {join_items: [{label: 'First'}, {label: 'Second'}, {label: 'Third'}]}},
-        {id: 'mask', title: 'Mask', partial: 'partials/blocks/layout/mask.html.twig', vars: {mask_image: demo_image, mask_alt: 'Abstract hills', mask_shape: 'mask-squircle'}},
-        {id: 'stack', title: 'Stack', partial: 'partials/blocks/layout/stack.html.twig', vars: {stack_class: 'demo-stack', stack_items: [
+        {id: 'divider', title: 'Divider', partial: 'partials/components/layout/divider.html.twig', vars: {divider_label: 'OR'}},
+        {id: 'drawer', title: 'Drawer', partial: 'partials/components/layout/drawer.html.twig', vars: {drawer_id: 'demo-drawer', drawer_button: 'Open drawer', drawer_content: '<p>Page content</p>', drawer_sidebar: '<ul class="menu"><li><a href="#layout">Navigation item</a></li></ul>'}},
+        {id: 'footer', title: 'Footer', partial: 'partials/components/layout/footer.html.twig', vars: {footer_brand: 'Basic', footer_text: 'A simple footer component.', footer_links: [{label: 'About', url: '#layout'}, {label: 'Contact', url: '#layout'}]}},
+        {id: 'hero', title: 'Hero', partial: 'partials/components/layout/hero.html.twig', vars: {hero_title: 'Hero title', hero_text: 'A clear introduction to this page.', hero_class: 'min-h-64 bg-base-200'}},
+        {id: 'indicator', title: 'Indicator', partial: 'partials/components/layout/indicator.html.twig', vars: {indicator_label: 'New', indicator_content: 'Inbox'}},
+        {id: 'join', title: 'Join', partial: 'partials/components/layout/join.html.twig', vars: {join_items: [{label: 'First'}, {label: 'Second'}, {label: 'Third'}]}},
+        {id: 'mask', title: 'Mask', partial: 'partials/components/layout/mask.html.twig', vars: {mask_image: demo_image, mask_alt: 'Abstract hills', mask_shape: 'mask-squircle'}},
+        {id: 'stack', title: 'Stack', partial: 'partials/components/layout/stack.html.twig', vars: {stack_class: 'demo-stack', stack_items: [
             {content: 'Layer 1 · Primary', class: 'card bg-primary text-primary-content p-4'},
             {content: 'Layer 2 · Secondary', class: 'card bg-secondary text-secondary-content p-4'},
             {content: 'Layer 3 · Accent', class: 'card bg-accent text-accent-content p-4'},
@@ -102,10 +102,10 @@
         ]}}
     ]},
     {id: 'mockup', title: 'Mockup', items: [
-        {id: 'browser', title: 'Browser mockup', partial: 'partials/blocks/mockup/browser.html.twig', vars: {browser_url: 'https://example.com', browser_content: 'Browser preview'}},
-        {id: 'code', title: 'Code mockup', partial: 'partials/blocks/mockup/code.html.twig', vars: {code_content: 'echo "Hello, world!"'}},
-        {id: 'phone', title: 'Phone mockup', partial: 'partials/blocks/mockup/phone.html.twig', vars: {phone_content: 'Mobile preview'}},
-        {id: 'window', title: 'Window mockup', partial: 'partials/blocks/mockup/window.html.twig', vars: {window_content: 'Desktop window preview'}}
+        {id: 'browser', title: 'Browser mockup', partial: 'partials/components/mockup/browser.html.twig', vars: {browser_url: 'https://example.com', browser_content: 'Browser preview'}},
+        {id: 'code', title: 'Code mockup', partial: 'partials/components/mockup/code.html.twig', vars: {code_content: 'echo "Hello, world!"'}},
+        {id: 'phone', title: 'Phone mockup', partial: 'partials/components/mockup/phone.html.twig', vars: {phone_content: 'Mobile preview'}},
+        {id: 'window', title: 'Window mockup', partial: 'partials/components/mockup/window.html.twig', vars: {window_content: 'Desktop window preview'}}
     ]}
 ] %}
 

@@ -38,7 +38,7 @@
                         <div class="flex w-full flex-col {{ stack_alignment[column.alignment|default(hero_content_alignment|default('left'))]|default('items-start') }} gap-5">
                             {% for block in column.blocks %}
                                 <div class="hero-component w-full">
-                                    {% include 'partials/hero_component.html.twig' with {
+                                    {% include 'partials/component_dispatcher.html.twig' with {
                                         block: block,
                                         hero_site_media: hero_site_media|default(null),
                                         hero_page_media: hero_page_media|default(null),

@@ -1,0 +1,65 @@
+{% set image_value = card.image|default('') %}
+{% set site_image_name = image_value starts with 'media://' ? image_value|replace({'media://': ''}) : image_value %}
+{% set image = image_value starts with 'media://' ? (site_media ? site_media[site_image_name] : null) : module.media[image_value] %}
+{% set image_url = image ? image.url : (image_value starts with 'media://' ? url(image_value) : '') %}
+{% set image_position = card.image_position|default('top') %}
+{% if image_position not in ['top', 'left', 'right', 'bottom'] %}{% set image_position = 'top' %}{% endif %}
+{% set has_image = image or image_url %}
+{% set show_button = button_enabled is defined ? button_enabled : (card.button_enabled is defined ? card.button_enabled : (card.button_label|default('') and card.button_url|default(''))) %}
+{% set card_classes = 'card card-border bg-base-100 shadow-sm' %}
+{% set figure_classes = 'aspect-[4/3] overflow-hidden' %}
+{% if has_image and image_position in ['left', 'right'] %}{% set card_classes = card_classes ~ ' card-side' %}{% endif %}
+{% if image_position in ['left', 'right'] %}{% set figure_classes = 'w-1/3 shrink-0 overflow-hidden' %}{% endif %}
+
+<div class="{{ card_classes|e('html_attr') }}">
+    {% if image_position in ['right', 'bottom'] %}
+        <div class="card-body">
+            {% if card.title|default('') %}<h3 class="card-title">{{ card.title|e }}</h3>{% endif %}
+            {% if card.description|default('') %}<p>{{ card.description|e }}</p>{% endif %}
+            {% if show_button %}
+                <div class="card-actions mt-4">
+                    {% include 'partials/components/actions/button.html.twig' with {
+                        button_url: card.button_url|default('#'),
+                        button_label: card.button_label,
+                        button_class: 'btn-outline btn-primary',
+                        button_url_behavior: card.button_url_behavior|default('same'),
+                        button_extra_classes: card.button_extra_classes|default('')
+                    } only %}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% if has_image %}
+        <figure class="{{ figure_classes|e('html_attr') }}">
+            {% if image %}
+                {% include 'partials/modern_image.html.twig' with {
+                    image: image,
+                    image_class: 'h-full w-full object-cover',
+                    image_alt: card.alt|default(card.title|default('')),
+                    image_loading: 'lazy'
+                } only %}
+            {% else %}
+                <img class="h-full w-full object-cover" src="{{ image_url|e('html_attr') }}" alt="{{ card.alt|default(card.title|default(''))|e('html_attr') }}" loading="lazy" />
+            {% endif %}
+        </figure>
+    {% endif %}
+
+    {% if image_position in ['top', 'left'] %}
+        <div class="card-body">
+            {% if card.title|default('') %}<h3 class="card-title">{{ card.title|e }}</h3>{% endif %}
+            {% if card.description|default('') %}<p>{{ card.description|e }}</p>{% endif %}
+            {% if show_button %}
+                <div class="card-actions mt-4">
+                    {% include 'partials/components/actions/button.html.twig' with {
+                        button_url: card.button_url|default('#'),
+                        button_label: card.button_label,
+                        button_class: 'btn-outline btn-primary',
+                        button_url_behavior: card.button_url_behavior|default('same'),
+                        button_extra_classes: card.button_extra_classes|default('')
+                    } only %}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>

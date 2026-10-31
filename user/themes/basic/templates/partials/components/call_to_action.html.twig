@@ -8,7 +8,7 @@
             {% if module.header.description %}<p class="mt-3 max-w-2xl text-primary-content/80">{{ module.header.description|e }}</p>{% endif %}
         </div>
         <div class="md:justify-self-end">
-            {% include 'partials/blocks/actions/button.html.twig' with {
+            {% include 'partials/components/actions/button.html.twig' with {
                 button_url: module.header.button_url|default(''),
                 button_label: module.header.button_label|default(''),
                 button_class: 'btn-secondary'

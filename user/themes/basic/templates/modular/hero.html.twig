@@ -3,7 +3,7 @@
 {% set background_site_name = background_name starts with 'media://' ? background_name|replace({'media://': ''}) : background_name %}
 {% set background_media = background_name starts with 'media://' ? (site_media ? site_media[background_site_name] : null) : page.media[background_name] %}
 {% set background_url = background_media ? background_media.url : (background_name starts with 'media://' ? url(background_name) : '') %}
-{% include 'partials/blocks/layout/hero.html.twig' with {
+{% include 'partials/components/layout/hero.html.twig' with {
     hero_columns: page.header.columns_content|default([]),
     hero_column_count: page.header.columns|default(2),
     hero_content_alignment: page.header.content_alignment|default('left'),

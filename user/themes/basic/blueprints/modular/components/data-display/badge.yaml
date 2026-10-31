@@ -1,0 +1,41 @@
+form:
+  fields:
+    data-display/badge:
+      type: element
+      fields:
+        .badge_content:
+          type: textarea
+          label: Content
+        .badge_size:
+          type: select
+          label: Badge Size
+          default: badge-md
+          options:
+            badge-xs: Extra small
+            badge-sm: Small
+            badge-md: Medium
+            badge-lg: Large
+            badge-xl: Extra large
+        .badge_style:
+          type: select
+          label: Badge Style
+          default: default
+          options:
+            default: Default
+            badge-outline: Outline
+            badge-dash: Dash
+        .badge_color:
+          type: colorpicker
+          label: Badge color
+          help: Optional custom background and border color.
+        .badge_icon:
+          type: bootstrapiconpicker
+          label: Badge Icon
+          help: Bootstrap Icons must be enabled in Theme Configuration → Miscellaneous → Enable Bootstrap Icons.
+        .badge_icon_position:
+          type: select
+          label: Icon position
+          default: left
+          options:
+            left: Left
+            right: Right

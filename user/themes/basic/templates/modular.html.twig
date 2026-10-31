@@ -2,7 +2,7 @@
 
 {% block content %}
     {% set modules = page.collection() %}
-    {% for block_name in ['hero', 'intro', 'call_to_action', 'cards', 'components-library'] %}
+    {% for block_name in ['hero', 'intro', 'call_to_action', 'cards', 'components-library', 'section-layout'] %}
         {% for module in modules if module.header.block|default('') == block_name %}
             <section id="{{ module.slug|trim('_')|e('html_attr') }}" class="modular-section modular-section--{{ block_name|replace({'_': '-'})|e('html_attr') }}">
             {{ module.content|raw }}

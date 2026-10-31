@@ -1,0 +1,9 @@
+form:
+  fields:
+    actions/theme-controller:
+      type: element
+      fields:
+        .theme_controller_label:
+          type: text
+          label: Accessible label
+          default: Toggle dark theme

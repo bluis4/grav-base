@@ -1,0 +1,188 @@
+title: Section / Layout
+'@extends': default
+
+form:
+  fields:
+    tabs:
+      fields:
+        section_layout:
+          type: tab
+          title: Section / Layout
+          fields:
+            header.block:
+              type: hidden
+              default: section-layout
+
+            global_settings:
+              type: section
+              title: Global Settings
+              underline: true
+              collapsible: true
+              collapsed: false
+              fields:
+                header.display_mode:
+                  type: select
+                  label: Display mode
+                  default: grid
+                  options:
+                    grid: Grid
+                    flex: Flexbox
+
+                header.gap_size:
+                  type: select
+                  label: Gap between columns
+                  default: gap-8
+                  options:
+                    gap-0: None
+                    gap-2: Extra small
+                    gap-4: Small
+                    gap-8: Medium
+                    gap-12: Large
+                    gap-16: Extra large
+
+                header.align_items:
+                  type: select
+                  label: Align items
+                  help: In Flexbox, this aligns along the cross axis. In Grid, it aligns items within their grid areas.
+                  default: items-start
+                  options:
+                    items-start: Start
+                    items-center: Center
+                    items-end: End
+                    items-stretch: Stretch
+
+                header.justify_content:
+                  type: select
+                  label: Justify content
+                  help: In Flexbox, this aligns along the main axis. In Grid, it distributes tracks when there is extra space.
+                  default: justify-start
+                  options:
+                    justify-start: Start
+                    justify-center: Center
+                    justify-end: End
+                    justify-between: Space between
+                    justify-around: Space around
+                    justify-evenly: Space evenly
+
+                header.justify_items:
+                  type: select
+                  label: Grid justify items
+                  help: Applies to Grid mode only.
+                  default: justify-items-stretch
+                  options:
+                    justify-items-start: Start
+                    justify-items-center: Center
+                    justify-items-end: End
+                    justify-items-stretch: Stretch
+
+                header.padding_y:
+                  type: select
+                  label: Vertical padding
+                  default: py-16
+                  options:
+                    py-8: Small
+                    py-16: Medium
+                    py-24: Large
+                    py-32: Extra large
+
+                header.background_style:
+                  type: select
+                  label: Background style
+                  default: solid
+                  options:
+                    solid: Solid color
+                    image: Background image
+
+                header.background_color:
+                  type: colorpicker
+                  label: Background color
+                  default: '#ffffff'
+
+                header.background_image:
+                  type: media
+                  label: Background image
+                  sources:
+                    - page
+                    - site
+                  accept:
+                    - image/*
+
+                header.background_overlay:
+                  type: range
+                  label: Background image overlay
+                  default: 35
+                  validate:
+                    min: 0
+                    max: 100
+
+                header.style_classes:
+                  type: text
+                  label: Style classes
+                  help: Optional custom Tailwind or daisyUI classes for the section layout.
+
+            header.columns:
+              type: list
+              name: columns
+              label: Columns
+              help: Add and remove columns manually. The number of columns controls the layout.
+              style: vertical
+              max: 6
+              collapsible: true
+              collapsed: false
+              btnLabel: Add column
+              fields:
+                .admin_label:
+                  type: text
+                  label: Admin label
+                  default: Column
+                  placeholder: e.g. Main content
+                  help: Editor-only label used as the collapsed column title. Defaults to Column and is never rendered on the site.
+
+                .align_self:
+                  type: select
+                  label: Align self
+                  default: self-auto
+                  options:
+                    self-auto: Auto
+                    self-start: Start
+                    self-center: Center
+                    self-end: End
+                    self-stretch: Stretch
+                    self-baseline: Baseline
+
+                .justify_self:
+                  type: select
+                  label: Grid justify self
+                  help: Applies to Grid mode only.
+                  default: justify-self-auto
+                  options:
+                    justify-self-auto: Auto
+                    justify-self-start: Start
+                    justify-self-center: Center
+                    justify-self-end: End
+                    justify-self-stretch: Stretch
+
+                .blocks:
+                  name: blocks
+                  type: list
+                  label: Components
+                  help: Add and arrange components in this column.
+                  style: vertical
+                  collapsible: true
+                  collapsed: true
+                  btnLabel: Add component
+                  fields:
+                    .admin_label:
+                      type: text
+                      label: Admin label
+                      placeholder: e.g. Intro copy
+                      help: Optional editor-only label shown in the collapsed component title.
+
+                    .component:
+                      type: elements
+                      display_label: false
+                      default: data-display/badge
+                      options: { base/text: Text, base/image: Image, actions/button: Button, actions/dropdown: Dropdown, actions/fab: 'FAB / Speed dial', actions/modal: Modal, actions/swap: Swap, actions/theme-controller: 'Theme controller', data-display/accordion: Accordion, data-display/aura: Aura, data-display/avatar: Avatar, data-display/badge: Badge, data-display/card: Card, data-display/carousel: Carousel, data-display/chat-bubble: 'Chat bubble', data-display/collapse: Collapse, data-display/countdown: Countdown, data-display/diff: Diff, data-display/hover-3d-card: 'Hover 3D card', data-display/hover-gallery: 'Hover gallery', data-display/kbd: Kbd, data-display/list: List, data-display/stat: Stat, data-display/status: Status, data-display/table: Table, data-display/text-rotate: 'Text rotate', data-display/timeline: Timeline, data-input/calendar: Calendar, data-input/checkbox: Checkbox, data-input/fieldset: Fieldset, data-input/file-input: 'File input', data-input/filter: Filter, data-input/input: Input, data-input/label: Label, data-input/otp: OTP, data-input/radio: Radio, data-input/range: Range, data-input/rating: Rating, data-input/select: Select, data-input/textarea: Textarea, data-input/toggle: Toggle, data-input/validator: Validator, feedback/alert: Alert, feedback/loading: Loading, feedback/progress: Progress, feedback/radial-progress: 'Radial progress', feedback/skeleton: Skeleton, feedback/toast: Toast, feedback/tooltip: Tooltip, layout/divider: Divider, layout/drawer: Drawer, layout/footer: Footer, layout/hero: Hero, layout/indicator: Indicator, layout/join: Join, layout/mask: Mask, layout/stack: Stack, mockup/browser: 'Browser mockup', mockup/code: 'Code mockup', mockup/phone: 'Phone mockup', mockup/window: 'Window mockup', navigation/breadcrumbs: Breadcrumbs, navigation/dock: Dock, navigation/link: Link, navigation/megamenu: Megamenu, navigation/menu: Menu, navigation/navbar: Navbar, navigation/pagination: Pagination, navigation/steps: Steps, navigation/tabs: Tabs }
+                      fields:
+                        import@:
+                          type: user/themes/basic/blueprints/modular/hero.yaml:form/fields/tabs/fields/hero/fields/header.columns_content.column_1/fields/.blocks/fields/.component/fields

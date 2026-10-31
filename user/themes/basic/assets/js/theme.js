@@ -6,6 +6,46 @@
     const mainNav = document.querySelector('#primary-navigation');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+    document.addEventListener('click', (event) => {
+        if (!(event.target instanceof Element)) return;
+
+        document.querySelectorAll('details.component-dropdown[open]').forEach((dropdown) => {
+            const clickedItemLink = event.target.closest('.dropdown-content a');
+            if (!dropdown.contains(event.target) || (clickedItemLink && dropdown.contains(clickedItemLink))) {
+                dropdown.removeAttribute('open');
+            }
+        });
+    });
+
+    document.querySelectorAll('details.component-dropdown[data-dropdown-hover="true"]').forEach((dropdown) => {
+        const summary = dropdown.querySelector(':scope > summary');
+        const dropdownContent = dropdown.querySelector(':scope > .dropdown-content');
+        let closeTimer;
+
+        const keepDropdownOpen = () => {
+            window.clearTimeout(closeTimer);
+        };
+
+        dropdown.addEventListener('pointerenter', (event) => {
+            if (event.pointerType === 'touch') return;
+            keepDropdownOpen();
+            dropdown.open = true;
+        });
+
+        dropdown.addEventListener('pointerleave', (event) => {
+            if (event.pointerType === 'touch') return;
+            closeTimer = window.setTimeout(() => {
+                if (!dropdown.matches(':hover')) dropdown.removeAttribute('open');
+            }, 250);
+        });
+
+        dropdownContent?.addEventListener('pointerenter', keepDropdownOpen);
+
+        summary?.addEventListener('click', (event) => {
+            if (event.detail > 0 && dropdown.matches(':hover')) event.preventDefault();
+        });
+    });
+
     const updateHeaderOverlap = () => {
         if (overlayHeader) {
             overlayHeader.style.setProperty('--site-header-height', `${overlayHeader.offsetHeight}px`);

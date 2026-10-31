@@ -1,0 +1,86 @@
+{% set display_mode = page.header.display_mode|default('grid') %}
+{% set columns = page.header.columns|default([]) %}
+{% set column_count = columns|length %}
+{% set grid_classes = {
+    1: 'grid-cols-1',
+    2: 'grid-cols-1 md:grid-cols-2',
+    3: 'grid-cols-1 md:grid-cols-3',
+    4: 'grid-cols-1 md:grid-cols-4',
+    5: 'grid-cols-1 md:grid-cols-5',
+    6: 'grid-cols-1 md:grid-cols-6'
+} %}
+{% set gap_classes = ['gap-0', 'gap-2', 'gap-4', 'gap-8', 'gap-12', 'gap-16'] %}
+{% set align_items_classes = ['items-start', 'items-center', 'items-end', 'items-stretch'] %}
+{% set justify_content_classes = ['justify-start', 'justify-center', 'justify-end', 'justify-between', 'justify-around', 'justify-evenly'] %}
+{% set justify_items_classes = ['justify-items-start', 'justify-items-center', 'justify-items-end', 'justify-items-stretch'] %}
+{% set align_self_classes = ['self-auto', 'self-start', 'self-center', 'self-end', 'self-stretch', 'self-baseline'] %}
+{% set justify_self_classes = ['justify-self-auto', 'justify-self-start', 'justify-self-center', 'justify-self-end', 'justify-self-stretch'] %}
+{% set padding_classes = ['py-8', 'py-16', 'py-24', 'py-32'] %}
+{% set gap = page.header.gap_size|default('gap-8') %}
+{% if gap not in gap_classes %}{% set gap = 'gap-8' %}{% endif %}
+{% set align_items = page.header.align_items|default('items-start') %}
+{% if align_items not in align_items_classes %}{% set align_items = 'items-start' %}{% endif %}
+{% set justify_content = page.header.justify_content|default('justify-start') %}
+{% if justify_content not in justify_content_classes %}{% set justify_content = 'justify-start' %}{% endif %}
+{% set justify_items = page.header.justify_items|default('justify-items-stretch') %}
+{% if justify_items not in justify_items_classes %}{% set justify_items = 'justify-items-stretch' %}{% endif %}
+{% set padding_y = page.header.padding_y|default('py-16') %}
+{% if padding_y not in padding_classes %}{% set padding_y = 'py-16' %}{% endif %}
+
+{% set section_media_name = page.header.background_image|default('') %}
+{% set site_media = media_directory('user://media') %}
+{% set section_media = null %}
+{% if section_media_name %}
+    {% set section_media = section_media_name starts with 'media://' ? (site_media ? site_media[section_media_name|replace({'media://': ''})] : null) : page.media[section_media_name] %}
+{% endif %}
+{% set section_image_url = section_media ? section_media.url : (section_media_name starts with 'media://' ? url(section_media_name) : '') %}
+{% set image_background = page.header.background_style|default('solid') == 'image' and (section_media or section_image_url) %}
+{% set section_classes = 'relative isolate ' ~ padding_y ~ ' ' ~ page.header.style_classes|default('') %}
+
+<div class="{{ section_classes|trim|e('html_attr') }}"{% if not image_background %} style="background-color: {{ page.header.background_color|default('#ffffff')|e('html_attr') }}"{% endif %}>
+    {% if image_background and section_media %}
+        {% include 'partials/modern_image.html.twig' with {
+            image: section_media,
+            picture_class: 'absolute inset-0 -z-20 h-full w-full',
+            image_class: 'h-full w-full object-cover',
+            image_alt: '',
+            image_loading: 'lazy'
+        } only %}
+    {% elseif image_background %}
+        <div class="absolute inset-0 -z-20 bg-cover bg-center" style="background-image: url('{{ section_image_url|e('html_attr') }}')"></div>
+    {% endif %}
+    {% if image_background %}
+        <div class="absolute inset-0 -z-10 bg-neutral" style="opacity: {{ (page.header.background_overlay|default(35) / 100)|e('html_attr') }}"></div>
+    {% endif %}
+
+    <div class="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        {% if column_count %}
+            {% set layout_classes = display_mode == 'flex' ? 'flex flex-wrap' : 'grid ' ~ (grid_classes[column_count]|default('grid-cols-1')) %}
+            <div class="{{ layout_classes }} {{ gap }} {{ align_items }} {{ justify_content }}{% if display_mode != 'flex' %} {{ justify_items }}{% endif %}">
+                {% for column in columns %}
+                    {% set column_classes = display_mode == 'flex' ? 'min-w-0 basis-full grow md:basis-0' : 'min-w-0' %}
+                    {% set align_self = column.align_self|default('self-auto') %}
+                    {% if align_self not in align_self_classes %}{% set align_self = 'self-auto' %}{% endif %}
+                    {% set justify_self = column.justify_self|default('justify-self-auto') %}
+                    {% if justify_self not in justify_self_classes %}{% set justify_self = 'justify-self-auto' %}{% endif %}
+                    <div class="{{ column_classes }} {{ align_self }}{% if display_mode != 'flex' %} {{ justify_self }}{% endif %}">
+                        {% if column.blocks|default([])|length %}
+                            <div class="flex w-full min-w-0 flex-col gap-4">
+                                {% for block in column.blocks %}
+                                    <div class="min-w-0">
+                                        {% include 'partials/component_dispatcher.html.twig' with {
+                                            block: block,
+                                            hero_site_media: site_media,
+                                            hero_page_media: page.media,
+                                            loop_index: loop.index
+                                        } only %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>

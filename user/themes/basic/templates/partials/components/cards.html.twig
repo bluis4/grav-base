@@ -1,0 +1,33 @@
+<div class="mx-auto max-w-6xl px-4 py-20 md:py-28">
+    {% set columns = module.header.columns|default(3) %}
+{% set site_media = media_directory('user://media') %}
+    {% set column_classes = 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' %}
+    {% if columns == 2 %}
+        {% set column_classes = 'grid-cols-1 md:grid-cols-2' %}
+    {% elseif columns == 4 %}
+        {% set column_classes = 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4' %}
+    {% endif %}
+
+    <div class="mb-8 max-w-2xl">
+        {% if module.header.eyebrow %}<p class="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">{{ module.header.eyebrow|e }}</p>{% endif %}
+        <h2 class="text-3xl font-bold leading-tight tracking-tight md:text-5xl">{{ module.header.heading|default(module.title)|e }}</h2>
+        {% if module.header.description %}<p class="mt-3 text-lg">{{ module.header.description|e }}</p>{% endif %}
+    </div>
+    <div class="grid {{ column_classes }} gap-6">
+        {% for card in module.header.cards %}
+            {% set link_source = card.button_link_source|default('custom') %}
+            {% set link_type = link_source is iterable ? link_source.type|default('') : link_source %}
+            {% set page_values = link_source is iterable ? link_source.page|default({}) : {} %}
+            {% set custom_values = link_source is iterable ? link_source.custom|default({}) : {} %}
+            {% set link_page = page_values.button_page|default(card.button_page|default('')) %}
+            {% if link_page is iterable %}{% set link_page = link_page|first|default('') %}{% endif %}
+            {% set link_url = custom_values.button_custom_url|default(card.button_custom_url|default(card.button_url|default(card.url|default('#')))) %}
+            {% if link_type == 'page' and link_page %}
+                {% set linked_page = grav['pages'].find(link_page) %}
+                {% set link_url = linked_page ? linked_page.url : link_page %}
+            {% endif %}
+            {% set card_for_render = card|merge({ button_url: link_url, button_url_behavior: card.button_url_behavior|default('same'), button_extra_classes: card.button_extra_classes|default('') }) %}
+            {% include 'partials/components/data-display/card.html.twig' with { module: module, card: card_for_render, site_media: site_media, button_enabled: card.button_label|default('') is not empty } only %}
+        {% endfor %}
+    </div>
+</div>

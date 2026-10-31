@@ -19,6 +19,92 @@ body {
     font-family: var(--font-primary, "Open Sans"), Arial, sans-serif;
 }
 
+/* Let an open component dropdown add its menu to page flow so it cannot sit behind the footer. */
+.component-dropdown.dropdown-bottom[open] {
+    display: grid;
+    width: max-content;
+}
+
+.component-dropdown.dropdown-bottom[open] > .dropdown-content {
+    position: static;
+    margin-top: 0.5rem;
+    justify-self: start;
+}
+
+.component-dropdown.dropdown-bottom.dropdown-center[open] > summary,
+.component-dropdown.dropdown-bottom.dropdown-center[open] > .dropdown-content {
+    justify-self: center;
+}
+
+.component-dropdown.dropdown-bottom.dropdown-end[open] > summary,
+.component-dropdown.dropdown-bottom.dropdown-end[open] > .dropdown-content {
+    justify-self: end;
+}
+
+.component-dropdown.dropdown-top > .dropdown-content {
+    inset-inline-start: 0;
+    inset-inline-end: auto;
+    top: auto;
+    bottom: 100%;
+    translate: 0 0;
+    margin: 0 0 0.5rem;
+}
+
+.component-dropdown.dropdown-top.dropdown-center > .dropdown-content {
+    inset-inline-start: 50%;
+    translate: -50% 0;
+}
+
+.component-dropdown.dropdown-top.dropdown-end > .dropdown-content {
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+    translate: 0 0;
+}
+
+.component-dropdown.dropdown-left > .dropdown-content {
+    inset-inline-start: auto;
+    inset-inline-end: 100%;
+    top: 0;
+    bottom: auto;
+    translate: 0 0;
+    margin-block: 0;
+    margin-inline: 0 0.5rem;
+}
+
+.component-dropdown.dropdown-left.dropdown-center > .dropdown-content {
+    top: 50%;
+    bottom: auto;
+    translate: 0 -50%;
+}
+
+.component-dropdown.dropdown-left.dropdown-end > .dropdown-content {
+    top: auto;
+    bottom: 0;
+    translate: 0 0;
+}
+
+.component-dropdown.dropdown-right > .dropdown-content {
+    inset-inline-start: 100%;
+    inset-inline-end: auto;
+    top: 0;
+    bottom: auto;
+    translate: 0 0;
+    margin-block: 0;
+    margin-inline: 0.5rem 0;
+}
+
+.component-dropdown.dropdown-right.dropdown-center > .dropdown-content {
+    top: 50%;
+    bottom: auto;
+    translate: 0 -50%;
+}
+
+.component-dropdown.dropdown-right.dropdown-end > .dropdown-content {
+    top: auto;
+    bottom: 0;
+    translate: 0 0;
+}
+
 h1,
 h2,
 h3,
@@ -196,6 +282,67 @@ h6,
     z-index: 0;
     min-height: 4.5rem;
     margin-left: auto;
+}
+
+/* FAB used as a page component: sit in flow with its column instead of pinning to the viewport. */
+.fab-inline {
+    position: relative;
+    inset: auto;
+    inset-inline-end: auto;
+    z-index: 0;
+    pointer-events: auto;
+    align-items: flex-start;
+}
+
+/* A fixed FAB clears the back-to-top button (fixed right-6 bottom-6) so the two never overlap. */
+.fab-fixed {
+    bottom: 6rem;
+}
+
+/* Keep quarter-circle speed-dial items button-sized; labels are visual tooltips, not grid content. */
+.fab-flower {
+    justify-items: center;
+}
+
+.fab-inline.fab-flower {
+    width: max-content;
+}
+
+.fab-flower > * {
+    justify-self: center;
+    align-self: center;
+}
+
+.fab-flower > .fab-item {
+    position: relative;
+}
+
+.fab-flower > .fab-item > .badge {
+    position: absolute;
+    top: 50%;
+    inset-inline-end: calc(100% + 0.5rem);
+    transform: translateY(-50%);
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 160ms ease, visibility 160ms ease;
+}
+
+.fab-flower > .fab-item:hover > .badge,
+.fab-flower > .fab-item:focus-within > .badge {
+    opacity: 1;
+    visibility: visible;
+}
+
+.fab-flower:hover > :nth-child(n + 2),
+.fab-flower:focus-within > :nth-child(n + 2) {
+    visibility: visible;
+    --tw-scale-x: 100%;
+    --tw-scale-y: 100%;
+    --tw-scale-z: 100%;
+    scale: var(--tw-scale-x) var(--tw-scale-y);
+    opacity: 100%;
 }
 
 .component-example__preview .dock-demo-inline {

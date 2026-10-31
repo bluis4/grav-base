@@ -1,0 +1,27 @@
+form:
+  fields:
+    actions/modal:
+      type: element
+      fields:
+        .modal_trigger:
+          type: text
+          label: Button text
+          default: Open dialog
+          help: Text shown on the button that opens the dialog.
+        .modal_button_style:
+          type: text
+          label: Button style classes
+          help: 'Optional daisyUI classes, for example btn-primary or btn-outline.'
+        .modal_title:
+          type: text
+          label: Dialog title
+          default: Dialog
+        .modal_content:
+          type: textarea
+          label: Dialog content
+          help: Plain text shown in the dialog body.
+        .modal_close_label:
+          type: text
+          label: Close button text
+          default: Close
+          help: Text shown on the dialog close button and the backdrop.

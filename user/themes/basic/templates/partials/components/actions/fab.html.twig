@@ -1,0 +1,43 @@
+{% set fab_mode = fab_mode|default('fab') %}
+{% if fab_mode not in ['fab', 'speed_dial'] %}{% set fab_mode = 'fab' %}{% endif %}
+{% set fab_style = fab_style|default('vertical') %}
+{% if fab_style not in ['vertical', 'quarter_circle'] %}{% set fab_style = 'vertical' %}{% endif %}
+{% set fab_title = fab_title|default(fab_label|default('Main action')) %}
+{% set fab_items = fab_items|default(fab_actions|default([])) %}
+{% set fab_position = fab_position|default('inline') %}
+{% if fab_position not in ['inline', 'fixed'] %}{% set fab_position = 'inline' %}{% endif %}
+{% set fab_url = fab_mode == 'fab' ? fab_url|default('') : '' %}
+{% set fab_url_behavior = fab_url_behavior|default('same') %}
+{% if fab_url_behavior not in ['same', 'new_tab', 'new_window'] %}{% set fab_url_behavior = 'same' %}{% endif %}
+{% set fab_target = fab_url_behavior == 'same' ? '_self' : '_blank' %}
+{% set fab_popup_name = 'basic-fab-' ~ random() %}
+{% set fab_is_speed_dial = fab_mode == 'speed_dial' and fab_items is not empty %}
+{% set fab_classes = ['fab', fab_position == 'fixed' ? 'fab-fixed' : 'fab-inline'] %}
+{% if fab_is_speed_dial and fab_style == 'quarter_circle' %}{% set fab_classes = fab_classes|merge(['fab-flower']) %}{% endif %}
+{% if fab_demo_class|default('') %}{% set fab_classes = fab_classes|merge([fab_demo_class]) %}{% endif %}
+
+<div class="{{ fab_classes|join(' ')|e('html_attr') }}">
+    {% if fab_url %}
+    <a href="{{ fab_url|e('html_attr') }}" target="{{ fab_target|e('html_attr') }}"{% if fab_target == '_blank' %} rel="noopener noreferrer"{% endif %}{% if fab_url_behavior == 'new_window' %} onclick="const popup = window.open(this.href, '{{ fab_popup_name|e('js') }}', 'popup,width=900,height=700'); if (popup) { popup.opener = null; return false; }"{% endif %} aria-label="{{ fab_title|e('html_attr') }}" title="{{ fab_title|e('html_attr') }}" class="btn btn-lg btn-circle btn-primary">
+    {% else %}
+    <div tabindex="0" role="button" aria-label="{{ fab_title|e('html_attr') }}" class="btn btn-lg btn-circle btn-primary">
+    {% endif %}
+        {% if fab_icon|default('') %}<i class="bi {{ fab_icon|e('html_attr') }}" aria-hidden="true"></i>{% else %}{{ fab_title|e }}{% endif %}
+    {% if fab_url %}</a>{% else %}</div>{% endif %}
+
+    {% if fab_is_speed_dial %}
+        {% for action in fab_items %}
+            {% set action_label = action.label|default('') %}
+            {% set action_type = action.type|default('text') == 'icon' ? 'icon' : 'text' %}
+            {% set action_aria = action_label ? action_label : action.text|default('Action') %}
+            {% set action_behavior = action.url_behavior|default('same') %}
+            {% set action_target = action_behavior == 'same' ? '_self' : '_blank' %}
+            <div class="fab-item flex items-center gap-2">
+                {% if action_label %}<span class="badge badge-ghost" aria-hidden="true">{{ action_label|e }}</span>{% endif %}
+                {% if action.url|default('') %}<a class="btn btn-lg btn-circle" href="{{ action.url|e('html_attr') }}" target="{{ action_target|e('html_attr') }}"{% if action_target == '_blank' %} rel="noopener noreferrer"{% endif %} aria-label="{{ action_aria|e('html_attr') }}" title="{{ action_aria|e('html_attr') }}">{% else %}<button class="btn btn-lg btn-circle" type="button" aria-label="{{ action_aria|e('html_attr') }}" title="{{ action_aria|e('html_attr') }}">{% endif %}
+                    {% if action_type == 'icon' and action.icon|default('') %}<i class="bi {{ action.icon|e('html_attr') }}" aria-hidden="true"></i>{% else %}{{ action.text|default(action.icon|default(''))|e }}{% endif %}
+                {% if action.url|default('') %}</a>{% else %}</button>{% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>

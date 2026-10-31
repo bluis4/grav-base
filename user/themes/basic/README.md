@@ -25,6 +25,6 @@ npm run watch:css
 
 Tailwind scans this theme's Twig templates and Grav page content under `user/pages` for utility classes.
 
-## Modular pages and reusable blocks
+## Modular pages and reusable components
 
-The homepage uses Grav's modular page collection. Keep module folders prefixed with `_` and name each Markdown file after its module template, for example `_hero/hero.md`. The module template adapters in `templates/modular/` render the reusable components from `templates/partials/blocks/`. The `card` and `button` blocks are reusable inside other blocks. The shared site header, navigation, and footer live in `templates/partials/` and are included by the base layout.
+The homepage uses Grav's modular page collection. Keep module folders prefixed with `_` and name each Markdown file after its module template, for example `_hero/hero.md`. The module template adapters in `templates/modular/` render the reusable components from `templates/partials/components/`. The `card` and `button` components are reusable inside other components. The shared site header, navigation, and footer live in `templates/partials/` and are included by the base layout.

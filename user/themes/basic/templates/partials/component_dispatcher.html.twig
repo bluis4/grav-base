@@ -26,9 +26,79 @@
         active: loop.first
     }]) %}
 {% endfor %}
+{% set dropdown_items = [] %}
+{% for item in block.items|default([]) %}
+    {% set item_link_source = item.link_source|default('custom') %}
+    {% set item_link_type = item_link_source is iterable ? item_link_source.type|default('') : item_link_source %}
+    {% set item_page_values = item.page|default({}) %}
+    {% set item_custom_values = item.custom|default({}) %}
+    {% set item_source_page = item_link_source is iterable ? item_link_source.page|default({}) : {} %}
+    {% set item_source_custom = item_link_source is iterable ? item_link_source.custom|default({}) : {} %}
+    {% set item_source_flat_page = item_link_source is iterable ? item_link_source.link_page|default('') : '' %}
+    {% set item_source_flat_custom = item_link_source is iterable ? item_link_source.link_custom_url|default('') : '' %}
+    {% set item_page_route = item_page_values.link_page|default(item_source_page.link_page|default(item_source_flat_page|default(item.link_page|default('')))) %}
+    {% if item_page_route is iterable %}{% set item_page_route = item_page_route|first|default('') %}{% endif %}
+    {% set item_custom_url = item_custom_values.link_custom_url|default(item_source_custom.link_custom_url|default(item_source_flat_custom|default(item.link_custom_url|default('')))) %}
+    {% set item_url = item_custom_url|default(item.link_destination|default(item.url|default('#'))) %}
+    {% if item_link_type == 'page' and item_page_route %}
+        {% set linked_item_page = grav['pages'].find(item_page_route) %}
+        {% set item_url = linked_item_page ? linked_item_page.url : item_page_route %}
+    {% endif %}
+    {% set dropdown_items = dropdown_items|merge([{
+        label: item.item_text|default(item.label|default(item.title|default('Menu item'))),
+        url: item_url,
+        url_behavior: item.url_behavior|default('same')
+    }]) %}
+{% endfor %}
 
-{# Every other component renders from its own partial under blocks/<category>/<name>. #}
+{# Every other component renders from its own partial under components/<category>/<name>. #}
+{% set speed_dial_settings = block.speed_dial_settings|default({}) %}
+{% set fab_link_settings = block.fab_link_settings|default({}) %}
+{% set fab_link_source = fab_link_settings.fab_link_source|default(block.fab_link_source|default('custom')) %}
+{% set fab_link_type = fab_link_source is iterable ? fab_link_source.type|default('') : fab_link_source %}
+{% set fab_page_values = fab_link_source is iterable ? fab_link_source.page|default({}) : {} %}
+{% set fab_custom_values = fab_link_source is iterable ? fab_link_source.custom|default({}) : {} %}
+{% set fab_link_page = fab_page_values.fab_page|default(fab_link_source.fab_page|default(block.fab_page|default(''))) %}
+{% if fab_link_page is iterable %}{% set fab_link_page = fab_link_page|first|default('') %}{% endif %}
+{% set fab_custom_url = fab_custom_values.fab_custom_url|default(fab_link_source.fab_custom_url|default(block.fab_custom_url|default(''))) %}
+{% set fab_url = fab_custom_url %}
+{% if fab_link_type == 'page' and fab_link_page %}
+    {% set fab_linked_page = grav['pages'].find(fab_link_page) %}
+    {% set fab_url = fab_linked_page ? fab_linked_page.url : fab_link_page %}
+{% endif %}
+{% set fab_url_behavior = fab_link_settings.fab_url_behavior|default(block.fab_url_behavior|default('same')) %}
+{% if fab_url_behavior not in ['same', 'new_tab', 'new_window'] %}{% set fab_url_behavior = 'same' %}{% endif %}
+{% set fab_items = [] %}
+{% for item in speed_dial_settings.items|default(block.items|default([])) %}
+    {% set item_link_source = item.item_link_source|default('custom') %}
+    {% set item_link_type = item_link_source is iterable ? item_link_source.type|default('') : item_link_source %}
+    {% set item_page_values = item.page|default({}) %}
+    {% set item_custom_values = item.custom|default({}) %}
+    {% set item_source_page = item_link_source is iterable ? item_link_source.page|default({}) : {} %}
+    {% set item_source_custom = item_link_source is iterable ? item_link_source.custom|default({}) : {} %}
+    {% set item_page_route = item_page_values.item_page|default(item_source_page.item_page|default(item.item_page|default(''))) %}
+    {% if item_page_route is iterable %}{% set item_page_route = item_page_route|first|default('') %}{% endif %}
+    {% set item_custom_url = item_custom_values.item_custom_url|default(item_source_custom.item_custom_url|default(item.item_custom_url|default(''))) %}
+    {% set item_url = item_custom_url|default('#') %}
+    {% if item_link_type == 'page' and item_page_route %}
+        {% set linked_item_page = grav['pages'].find(item_page_route) %}
+        {% set item_url = linked_item_page ? linked_item_page.url : item_page_route %}
+    {% endif %}
+    {% set fab_items = fab_items|merge([{
+        label: item.item_label|default(''),
+        type: item.item_type|default('text'),
+        text: item.item_text_fields.item_text|default(item.item_text|default('')),
+        icon: item.item_icon_fields.item_icon|default(item.item_icon|default('')),
+        url: item_url,
+        url_behavior: item.item_url_behavior|default('same')
+    }]) %}
+{% endfor %}
+
 {% set items = component_items %}
+{% set dropdown_position = block.dropdown_position|default('start') %}
+{% if dropdown_position not in ['start', 'center', 'end'] %}{% set dropdown_position = 'start' %}{% endif %}
+{% set dropdown_direction = block.dropdown_direction|default('bottom') %}
+{% if dropdown_direction not in ['top', 'bottom', 'left', 'right'] %}{% set dropdown_direction = 'bottom' %}{% endif %}
 {% set link_source = block.button_link_source|default('custom') %}
 {% set link_type = link_source is iterable ? link_source.type|default('') : link_source %}
 {% set page_values = block.page|default({}) %}
@@ -44,7 +114,7 @@
     {% set linked_page = grav['pages'].find(link_page) %}
     {% set link_url = linked_page ? linked_page.url : link_page %}
 {% endif %}
-{% include 'partials/blocks/' ~ component ~ '.html.twig' with {
+{% include 'partials/components/' ~ component ~ '.html.twig' with {
     module: page,
     site_media: hero_site_media|default(null),
     block: block,
@@ -55,8 +125,12 @@
         description: block.text|default(''),
         image: raw_image,
         alt: block.alt|default(''),
-        button_label: block.label|default(''),
-        button_url: block.url|default('')
+        image_position: block.image_position|default('top'),
+        button_label: block.button_text is defined ? block.button_text : block.label|default(''),
+        button_url: link_url,
+        button_url_behavior: block.button_url_behavior|default('same'),
+        button_extra_classes: block.button_extra_classes|default(''),
+        button_enabled: block.button_text is defined ? (block.button_text|trim is not empty) : (block.label|default('') and block.url|default(''))
     },
     button_label: block.button_text|default(block.label|default(block.title|default('Learn more'))),
     button_url: link_url,
@@ -68,9 +142,19 @@
     button_size: block.button_size|default('btn-md'),
     button_extra_classes: block.button_extra_classes|default(''),
     button_url_behavior: block.button_url_behavior|default('same'),
-    dropdown_label: block.label|default('Open menu'), dropdown_items: items,
-    fab_label: block.label|default('Open actions'), fab_icon: block.value|default('+'), fab_flower: false, fab_actions: items,
-    modal_trigger: block.label|default('Open dialog'), modal_title: block.title|default('Dialog'), modal_content: block.text|default(''),
+    dropdown_label: block.dropdown_text|default(block.label|default('Open menu')), dropdown_items: dropdown_items,
+    dropdown_position: dropdown_position, dropdown_direction: dropdown_direction,
+    dropdown_on_hover: block.dropdown_on_hover|default(false),
+    fab_title: block.fab_title|default('Main action'),
+    fab_icon: block.fab_icon|default('') and theme_var('enable_bootstrap_icons') ? block.fab_icon|default('') : '',
+    fab_mode: block.fab_mode|default('fab'),
+    fab_url: fab_url,
+    fab_url_behavior: fab_url_behavior,
+    fab_position: block.fab_position|default('inline'),
+    fab_style: block.speed_dial_settings.fab_style|default(block.fab_style|default('vertical')),
+    fab_items: fab_items,
+    modal_trigger: block.modal_trigger|default(block.label|default('Open dialog')), modal_title: block.modal_title|default(block.title|default('Dialog')), modal_content: block.modal_content|default(block.text|default('')),
+    modal_button_class: block.modal_button_style|default(block.style|default('')), modal_close_label: block.modal_close_label|default('Close'),
     modal_id: 'hero-modal-' ~ loop_index|default(1), modal_close: 'Close',
     badge_content: block.badge_content|default(block.text|default(block.label|default('Badge'))),
     badge_size: block.badge_size|default('badge-md'), badge_style: block.badge_style|default('default'),
@@ -127,6 +211,7 @@
     step_items: items, steps_class: block.style|default(''),
     tab_items: items, tab_group: 'hero-tabs-' ~ loop_index|default(1), tabs_id: 'hero-tabs-' ~ loop_index|default(1), tabs_class: block.style|default('tabs-border'),
     footer_brand: block.title|default('Brand'), footer_text: block.text|default(''), footer_class: block.style|default(''), footer_links: items, footer_links_label: block.label|default('Links'),
-    swap_label: block.label|default('Toggle'), swap_on: block.title|default('On'), swap_off: block.value|default('Off'), theme_controller_label: block.label|default('Toggle theme'),
+    swap_label: block.swap_label|default(block.label|default('Toggle')), swap_on: block.swap_on|default(block.title|default('On')), swap_off: block.swap_off|default(block.value|default('Off')),
+    theme_controller_label: block.theme_controller_label|default(block.label|default('Toggle theme')),
     code_prefix: '$'
 } only %}

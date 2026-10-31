@@ -7771,6 +7771,32 @@
     aspect-ratio: var(--aspect-video);
   }
   @layer daisyui.l1.l2 {
+    .card-side {
+      align-items: stretch;
+      flex-direction: row;
+    }
+    .card-side :where(figure:first-child) {
+      overflow: hidden;
+      border-start-start-radius: inherit;
+      border-start-end-radius: unset;
+      border-end-start-radius: inherit;
+      border-end-end-radius: unset;
+    }
+    .card-side :where(figure:last-child) {
+      overflow: hidden;
+      border-start-start-radius: unset;
+      border-start-end-radius: inherit;
+      border-end-start-radius: unset;
+      border-end-end-radius: inherit;
+    }
+    .card-side figure > * {
+      max-width: unset;
+    }
+    .card-side :where(figure > *) {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
     .btn-circle {
       border-radius: calc(infinity * 1px);
       padding-inline: 0px;
@@ -7842,6 +7868,9 @@
     .loading-md {
       width: calc(var(--size-selector, 0.25rem) * 6);
     }
+  }
+  .w-1\/3 {
+    width: calc(1 / 3 * 100%);
   }
   .w-3\/4 {
     width: calc(3 / 4 * 100%);
@@ -7920,6 +7949,12 @@
   }
   .shrink-0 {
     flex-shrink: 0;
+  }
+  .grow {
+    flex-grow: 1;
+  }
+  .basis-full {
+    flex-basis: 100%;
   }
   @layer daisyui.l1.l2.l3 {
     .menu .dropdown:focus-within .menu-dropdown-toggle:after {
@@ -8101,6 +8136,9 @@
   .flex-nowrap {
     flex-wrap: nowrap;
   }
+  .flex-wrap {
+    flex-wrap: wrap;
+  }
   .place-content-center {
     place-content: center;
   }
@@ -8116,6 +8154,12 @@
   .items-start {
     align-items: flex-start;
   }
+  .items-stretch {
+    align-items: stretch;
+  }
+  .justify-around {
+    justify-content: space-around;
+  }
   .justify-between {
     justify-content: space-between;
   }
@@ -8125,14 +8169,32 @@
   .justify-end {
     justify-content: flex-end;
   }
+  .justify-evenly {
+    justify-content: space-evenly;
+  }
   .justify-start {
     justify-content: flex-start;
   }
   .justify-items-center {
     justify-items: center;
   }
+  .justify-items-end {
+    justify-items: end;
+  }
+  .justify-items-start {
+    justify-items: start;
+  }
+  .justify-items-stretch {
+    justify-items: stretch;
+  }
+  .gap-0 {
+    gap: 0px;
+  }
   .gap-1 {
     gap: var(--spacing);
+  }
+  .gap-2 {
+    gap: calc(var(--spacing) * 2);
   }
   .gap-3 {
     gap: calc(var(--spacing) * 3);
@@ -8152,6 +8214,12 @@
   .gap-10 {
     gap: calc(var(--spacing) * 10);
   }
+  .gap-12 {
+    gap: calc(var(--spacing) * 12);
+  }
+  .gap-16 {
+    gap: calc(var(--spacing) * 16);
+  }
   :where(.space-y-3 > :not(:last-child)) {
     --tw-space-y-reverse: 0;
     margin-block-start: calc(calc(var(--spacing) * 3) * var(--tw-space-y-reverse));
@@ -8166,6 +8234,39 @@
     --tw-space-y-reverse: 0;
     margin-block-start: calc(calc(var(--spacing) * 6) * var(--tw-space-y-reverse));
     margin-block-end: calc(calc(var(--spacing) * 6) * calc(1 - var(--tw-space-y-reverse)));
+  }
+  .self-auto {
+    align-self: auto;
+  }
+  .self-baseline {
+    align-self: baseline;
+  }
+  .self-center {
+    align-self: center;
+  }
+  .self-end {
+    align-self: flex-end;
+  }
+  .self-start {
+    align-self: flex-start;
+  }
+  .self-stretch {
+    align-self: stretch;
+  }
+  .justify-self-auto {
+    justify-self: auto;
+  }
+  .justify-self-center {
+    justify-self: center;
+  }
+  .justify-self-end {
+    justify-self: flex-end;
+  }
+  .justify-self-start {
+    justify-self: flex-start;
+  }
+  .justify-self-stretch {
+    justify-self: stretch;
   }
   .overflow-hidden {
     overflow: hidden;
@@ -8430,6 +8531,12 @@
   }
   .py-20 {
     padding-block: calc(var(--spacing) * 20);
+  }
+  .py-24 {
+    padding-block: calc(var(--spacing) * 24);
+  }
+  .py-32 {
+    padding-block: calc(var(--spacing) * 32);
   }
   .pt-4 {
     padding-top: 1rem;
@@ -8857,10 +8964,28 @@
     .sm\:overflow-y-auto {
       overflow-y: auto;
     }
+    .sm\:px-6 {
+      padding-inline: calc(var(--spacing) * 6);
+    }
   }
   @media (width >= 48rem) {
+    .md\:basis-0 {
+      flex-basis: 0px;
+    }
     .md\:grid-cols-2 {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .md\:grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .md\:grid-cols-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .md\:grid-cols-5 {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+    .md\:grid-cols-6 {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
     }
     .md\:grid-cols-\[minmax\(0\,1fr\)_auto\] {
       grid-template-columns: minmax(0,1fr) auto;
@@ -8902,6 +9027,9 @@
     }
     .lg\:grid-cols-4 {
       grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .lg\:px-8 {
+      padding-inline: calc(var(--spacing) * 8);
     }
   }
 }

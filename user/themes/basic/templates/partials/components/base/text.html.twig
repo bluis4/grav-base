@@ -13,7 +13,7 @@
 #}
 {% set spacing_tokens = ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '5', '6', '7', '8', '9', '10', '11', '12', '14', '16', '20', '24', '32', '40', '48'] %}
 {% set spacing_prefixes = ['mt-', 'mb-', 'ml-', 'mr-', 'pt-', 'pb-', 'pl-', 'pr-'] %}
-{% import 'partials/blocks/base/spacing.html.twig' as spacing %}
+{% import 'partials/components/base/spacing.html.twig' as spacing %}
 
 {# Admin Next nests values under the element's own key. #}
 {% set text_values = block['base/text']|default({}) %}

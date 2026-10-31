@@ -30,12 +30,12 @@
     {% if theme_var('enable_bootstrap_icons') %}
         {% do assets.addCss('theme://assets/css/bootstrap-icons.css?v=1.13.2', 99) %}
     {% endif %}
-    {% do assets.addCss('theme://assets/css/theme.css?v=20261024-1', 98) %}
-    {% do assets.addCss('theme://assets/css/custom.css?v=20261022-12', 97) %}
+    {% do assets.addCss('theme://assets/css/theme.css?v=20261026-1', 98) %}
+    {% do assets.addCss('theme://assets/css/custom.css?v=20261101-1', 97) %}
 {% endblock %}
 
 {% block javascripts %}
-    {% do assets.addJs('theme://assets/js/theme.js?v=20261022-6', {group: 'bottom', priority: 99}) %}
+    {% do assets.addJs('theme://assets/js/theme.js?v=20261027-3', {group: 'bottom', priority: 99}) %}
     {% if theme_var('convert_image_to_modern_format') %}
         {% do assets.addJs('theme://assets/js/image-converter.js?v=20261022-1', {group: 'bottom', priority: 98}) %}
     {% endif %}
