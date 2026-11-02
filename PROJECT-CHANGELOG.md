@@ -4,6 +4,13 @@ This file records changes specific to this Grav site and its custom themes.
 The root `CHANGELOG.md` remains the upstream Grav core release history; Basic
 theme changes are also recorded in `user/themes/basic/CHANGELOG.md`.
 
+## 2026-11-03
+
+### Fixed
+
+- Forwarded page media into nested component rendering so images in Hero columns
+  resolve and display correctly.
+
 ## 2026-11-01
 
 ### Added
